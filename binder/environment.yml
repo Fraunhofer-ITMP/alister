@@ -1,0 +1,17 @@
+channels:
+- bioconda
+- conda-forge
+- defaults
+dependencies:
+# https://github.com/ContinuumIO/anaconda-issues/issues/4656
+- r-base=3.6
+- r-corrr
+- r-ggforce
+- r-gridExtra
+- r-jsonlite
+- r-lubridate
+- r-reshape2
+- r-shiny
+- r-survival
+- r-survminer
+- r-tidyverse=1.3
