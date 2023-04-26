@@ -14,18 +14,6 @@ library(dplyr)
 
 #Connect to database
 
-# db <- odbcConnectAccess2007("Y:\\Projects\\Preanalytical Stability\\Preanalytical Database\\ALISTER (Git)\\db\\PreanalyticalDatabase.accdb")
-# fc = sqlFetch(db,"Foldchange")
-# an = sqlFetch(db,"Center")
-# con = sqlFetch(db,"Preanalytical Conditions")
-# ref = sqlFetch(db,"Reference")
-
-# db = list(fc = sqlFetch(db,"Foldchange"),
-#           an = sqlFetch(db,"Center"),
-#           con = sqlFetch(db,"Preanalytical Conditions"),
-#           ref = sqlFetch(db,"Reference"))
-# saveRDS(db,"Y:\\Projects\\Preanalytical Stability\\Preanalytical Database\\ALISTER (Git)\\db\\PreanalyticalDatabase.rds")
-#db <- readRDS("Y:\\Projects\\Preanalytical Stability\\Preanalytical Database\\ALISTER (Git)\\db\\PreanalyticalDatabase.rds")
 db = readRDS("db/PreanDatab.RDS")
 fc = db$fc
 an = db$an
@@ -458,8 +446,11 @@ ui <- fluidPage(
         ),
         mainPanel(h1(strong("Results"), align = "left"),
                   modalDialog(
-                      title = "Disclaimer",
-                      tags$div("We cannot assume any liability for the content of external pages. Solely the operators of those linked pages are responsible for their content.", 
+                      HTML('<center><img src="limits/stamp.png" height = "160" width="160"></center>'),
+                      tags$div(#tags$br(),
+                               h4("Disclaimer",align = "center"),
+                               tags$br(),
+                               "We cannot assume any liability for the content of external pages. Solely the operators of those linked pages are responsible for their content.", 
                                tags$br(), 
                                tags$br(),
                                "We make every reasonable effort to ensure that the content of this Web site is kept up to date, and that it is accurate and complete. Nevertheless, the possibility of errors cannot be entirely ruled out. We do not give any warranty in respect of the timeliness, 
@@ -503,7 +494,7 @@ ui <- fluidPage(
                       br(),
                       bsCollapse(bsCollapsePanel("Citation",dataTableOutput("samp.ref"))),
                       fluidRow(
-                          column(4,HTML('<center><img src="leg/legsamps.PNG" height = "220"></center>')),
+                          column(4,HTML('<center><img src="leg/legsamps.png" height = "220"></center>')),
                           column(4,plotOutput("samp.pie", height = "300",width = "450"))
                           #column(4,HTML('<center><img src="contact/contact.png" height = "220"></center>'))
                       )
@@ -554,7 +545,7 @@ ui <- fluidPage(
                       br(),
                       bsCollapse(bsCollapsePanel("Citation",dataTableOutput("samp.ref_serum"))),
                       fluidRow(
-                          column(4,img(src='leg/legsamps2.PNG', height = "200", align = "left")),
+                          column(4,img(src='leg/legsamps2.png', height = "200", align = "left")),
                           column(4,plotOutput("samp.pie_serum", height = "300",width = "450")),
                           #column(4,HTML('<center><img src="contact/contact.png" height = "220"></center>'))
                       )
