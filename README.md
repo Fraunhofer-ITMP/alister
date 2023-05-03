@@ -58,7 +58,7 @@ Sample search is used in the following way:
  Protocol search
 </h2>
 
-> Research question: "I want to take blood sample in order to analyze a certain set of lipids and/or polar metabolites. What is the optimal way of sampling in order to assure stability it most analytes of interest? What is the optimal way in order to ensure stability in all of them?"
+> Research question: "I want to take blood samples in order to analyze a certain set of lipids and/or polar metabolites. What is the optimal way of sampling in order to assure stability it most analytes of interest? What is the optimal way in order to ensure stability in all of them?"
 
 Protocol search is currently only available for plasma samples. It is used in the following way:
 1. Like done previously, you can choose specific analyte classes of interest. 
