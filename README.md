@@ -114,7 +114,7 @@ The data filtering mode is used in the following way:
  Call for contribution
 </h2>
 
-
+ALISTER aims to aggregate analyte stability data and faciliate low-threshold access for the assessment of data and blood sample quality. This data-driven appproach off cause necessitates large amounts of experimental data. If you own data you think could fit ALISTER or know a study that you wish would be included in ALISTER´s database, please consider contacting us via rischke@med.uni-frankfurt.de
 
 <h2>
  References
