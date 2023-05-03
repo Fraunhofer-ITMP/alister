@@ -20,7 +20,7 @@ The following document gives an overview over the app functionalities.
 ALISTER can provide data for plasma or serum samples. In the first step you need to decide which matrix you are working with.
 
 <h2 align = "center">
- <img src="https://raw.githubusercontent.com/Fraunhofer-ITMP/alister/main/www/tut/2023%2005%2003%20Tutorial/Slide9.PNG">
+ <img src="https://raw.githubusercontent.com/Fraunhofer-ITMP/alister/main/www/tut/2023%2005%2003%20Tutorial/Slide9.PNG style ="width:40%">
 </h2>
 
 <h1>
