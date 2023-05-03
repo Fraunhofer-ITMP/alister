@@ -42,7 +42,13 @@ Prospective planning of sampling can be done using:
 > Research question: "I have a set of lipids and/or polar metabolites that have been measured from blood samples (e.g. biobank samples). I want to gain information on whether results should be treated with caution due to the mode of sample collection."
 
 Sample search is used in the following way:
-1. 
+1. Enter compound classes of interest. Analytes are categorized by their main lipid class (when lipids) or their main class according to the RefMet database (when polar metabolites). You can choose to 'Select all' groups at once.
+2. Choose the temperature your samples were processed under. If the temperature varied before and after centrifugation, check 'Other temperature after centrifugation' and add the additional information. 
+3. Experiments have shown, that for specific analytes or analyte classes it does matter, whether time delay occurs before or after centrifugation. Enter the respective processing delays.
+4. By default the critical threshold for assessing instability is set to 20% fold change due to specific pre-analytical conditions. When conditions are combined (e.g. added change due to delay before and after centrifugation) the threshold is expanded to 30%. You can choose to readjust this upper and lower bound by chkecking 'Define stability thresholds'.
+5. This is the result of your query. In some cases the database underlying ALISTER will not exactly match your conditions. In these cases generalization needs to happen. Hover your mouse over each analyte in order to see how your input got interpreted. Click on 'Citation' in order to see relevant literature on the stability of the shown analytes.
+6. A pie chart shows the overall influence of your input conditions on the set of selected analytes.
+7. You can download a .csv-file containing your query, as well as the output and all relevant references.
 
 <h3 align = "center">
  <img src="https://user-images.githubusercontent.com/105213394/235858420-99191f0c-2ebc-48e1-81e0-7a7427d94fec.png">
