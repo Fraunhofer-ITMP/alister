@@ -62,9 +62,9 @@ pr.png <- c("protos/a1a2.png",
             "protos/b1b2.png",
             "protos/c1c2.png")
 
-trend = c('<img src="trend/trend_up.PNG" height="24"></img>',
-          '<img src="trend/trend_down.PNG" height="24"></img>',
-          '<img src="trend/trend_stable.PNG" height="24"></img>')
+trend = c('<img src="trend/trend_up.png" height="24"></img>',
+          '<img src="trend/trend_down.png" height="24"></img>',
+          '<img src="trend/trend_stable.png" height="24"></img>')
 
 #Colors for pie plot
 co <- c(red = "#cd6960",
@@ -448,16 +448,16 @@ ui <- fluidPage(
                   modalDialog(
                       HTML('<center><img src="limits/stamp.png" height = "160" width="160"></center>'),
                       tags$div(#tags$br(),
-                               h4("Disclaimer",align = "center"),
-                               tags$br(),
-                               "We cannot assume any liability for the content of external pages. Solely the operators of those linked pages are responsible for their content.", 
-                               tags$br(), 
-                               tags$br(),
-                               "We make every reasonable effort to ensure that the content of this Web site is kept up to date, and that it is accurate and complete. Nevertheless, the possibility of errors cannot be entirely ruled out. We do not give any warranty in respect of the timeliness, 
+                          h4("Disclaimer",align = "center"),
+                          tags$br(),
+                          "We cannot assume any liability for the content of external pages. Solely the operators of those linked pages are responsible for their content.", 
+                          tags$br(), 
+                          tags$br(),
+                          "We make every reasonable effort to ensure that the content of this Web site is kept up to date, and that it is accurate and complete. Nevertheless, the possibility of errors cannot be entirely ruled out. We do not give any warranty in respect of the timeliness, 
                                accuracy or completeness of material published on this Web site, and disclaim all liability for (material or non-material) loss or damage incurred by third parties arising from the use of content obtained from the Web site.", 
-                               tags$br(),
-                               tags$br(),
-                               "Registered trademarks and proprietary names, and copyrighted text and images, are not generally indicated as such on our Web pages. But the absence of such indications in no way implies that these names, 
+                          tags$br(),
+                          tags$br(),
+                          "Registered trademarks and proprietary names, and copyrighted text and images, are not generally indicated as such on our Web pages. But the absence of such indications in no way implies that these names, 
                                images or text belong to the public domain in the context of trademark or copyright law."),
                       size = "l",
                       easyClose = FALSE,
