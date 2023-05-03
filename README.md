@@ -31,6 +31,7 @@ As described previously ALISTER is able to answer questions regarding pro- as we
 * Sample search
 * Analyte search
 * Data filtering mode
+
 Prospective planning of sampling can be done using:
 * Protocol search
 * Analayte search
