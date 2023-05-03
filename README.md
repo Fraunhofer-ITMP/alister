@@ -48,7 +48,7 @@ Sample search is used in the following way:
 4. By default the critical threshold for assessing instability is set to 20% fold change due to specific pre-analytical conditions. When conditions are combined (e.g. added change due to delay before and after centrifugation) the threshold is expanded to 30%. You can choose to readjust this upper and lower bound by chkecking 'Define stability thresholds'.
 5. This is the result of your query. In some cases the database underlying ALISTER will not exactly match your conditions. In these cases generalization needs to happen. Hover your mouse over each analyte in order to see how your input got interpreted. Click on 'Citation' in order to see relevant literature on the stability of the shown analytes.
 6. A pie chart shows the overall influence of your input conditions on the set of selected analytes.
-7. You can download a .csv-file containing your query, as well as the output and all relevant references.
+7. You can download a .csv-file containing your query, as well as the output and all relevant references. The tab 'Variable explanation' will answer all your questions regarding interpreation of the download.
 
 <h3 align = "center">
  <img src="https://user-images.githubusercontent.com/105213394/235858420-99191f0c-2ebc-48e1-81e0-7a7427d94fec.png">
@@ -61,7 +61,13 @@ Sample search is used in the following way:
 > Research question: "I want to take blood sample in order to analyze a certain set of lipids and/or polar metabolites. What is the optimal way of sampling in order to assure stability it most analytes of interest? What is the optimal way in order to ensure stability in all of them?"
 
 Protocol search is currently only available for plasma samples. It is used in the following way:
-1. 
+1. Like done previously, you can choose specific analyte classes of interest. 
+2. If you want to be recommended the sampling protocol that is recommended in most cases, choose 'Majority Vote' (default). In other cases you might want to choose the most strict protocol in order to ensure stability for the maximum of selected analytes. For this, choose 'Maximize stable analytes'.
+3. The output is straight forward. Based on its inherenc pre-analytical stability each analyte is recommended a sampling protocol. The overall protocol is recommended above the table. An icon next to the analyte indicates, whether the respective analyte is expected to be stable under the recommended protocol (this is mostly relevant when working in 'Majority Vote'.
+4. You can investigate the recommended sampling protocol in form of a comprehensible flow chart.
+5. A pie chart summarizes the expected stability of all selected analytes under the selected conditions.
+6. Like previously, you can adjust the stability thresholds to be more or less strict.
+7. Besides downloading a .csv-file containing your query, as well as the ouput, you are able to download a PDF, that depicts all possible sampling protocols in straight forward flowcharts. The tab 'Variable explanation' will answer all your questions regarding interpreation of the download.
 
 <h3 align = "center">
  <img src="https://raw.githubusercontent.com/Fraunhofer-ITMP/alister/main/www/tut/2023%2005%2003%20Tutorial/Prot.PNG">
@@ -74,7 +80,12 @@ Protocol search is currently only available for plasma samples. It is used in th
 > Research question: "I am interested in the stability of a very specific analyte. I need detailed information in how to take sample properly, as well as in how stable the analyte is under certain pre-analytical conditions."
 
 Analyte search is used in the following way:
-1. 
+1. As analyte search provides a more detailed investigation of analytes, you can select them individually in the drop down menu. Fell free to type in the name of your analyte of interest, so you dont have to scroll through all of them.
+2. Like in sample search you now can add you pre-analytic conditions, starting with temperature during processing. Click 'Other temperature after centrifugation' if the processing temperature varied before and after centrifugation.
+3. Processing delay before and after centrifugation might affect the analyte in different ways. Put in the processing time of your samples here.
+4. Like previously: If you want to define more or less strict stability thresholds, you can do that here.
+5. Analyte search combines functions previously introduced in 'Sample search' and 'Protocol search'. Here, the protocol recommendation, as well as the visual output introduced in 'Protocol search' are displayed.
+6. Separately, 'Analyte search' assesses your own pre-analytical input conditions. When clicking on 'Details' you can see an abstraction on the literature information ALISTER bases its decision on, indicating a generalized form of your input and whether the set individual threshold of fold changes due to pre-analytical stability was exceeded and in what 
 
 <h3 align = "center">
  <img src="https://raw.githubusercontent.com/Fraunhofer-ITMP/alister/main/www/tut/2023%2005%2003%20Tutorial/An.PNG">
