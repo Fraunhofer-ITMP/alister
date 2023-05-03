@@ -52,7 +52,7 @@ Sample search is used in the following way:
 7. You can download a .csv-file containing your query, as well as the output and all relevant references. The tab 'Variable explanation' will answer all your questions regarding interpreation of the download.
 
 <h2 align = "center">
- <img src="https://user-images.githubusercontent.com/105213394/235912659-5e19461e-c64d-488f-a00a-244d0a4e2f21.png">
+ <img src="https://user-images.githubusercontent.com/105213394/235912659-5e19461e-c64d-488f-a00a-244d0a4e2f21.png" style ="width:80%">
 </h2>
 
 <h2 align = "center">
@@ -71,7 +71,7 @@ Protocol search is currently only available for plasma samples. It is used in th
 7. Besides downloading a .csv-file containing your query, as well as the ouput, you are able to download a PDF, that depicts all possible sampling protocols in straight forward flowcharts. The tab 'Variable explanation' will answer all your questions regarding interpreation of the download.
 
 <h2 align = "center">
- <img src="https://raw.githubusercontent.com/Fraunhofer-ITMP/alister/main/www/tut/2023%2005%2003%20Tutorial/Slide4.PNG">
+ <img src="https://raw.githubusercontent.com/Fraunhofer-ITMP/alister/main/www/tut/2023%2005%2003%20Tutorial/Slide4.PNG" style ="width:80%">
 </h2>
 
 <h2 align = "center">
@@ -90,7 +90,7 @@ Analyte search is used in the following way:
 7. All data you put in your query and the respective output can be downloaded. The tab 'Variable explanation' will answer all your questions regarding interpreation of the download.
 
 <h2 align = "center">
- <img src="https://raw.githubusercontent.com/Fraunhofer-ITMP/alister/main/www/tut/2023%2005%2003%20Tutorial/Slide6.PNG">
+ <img src="https://raw.githubusercontent.com/Fraunhofer-ITMP/alister/main/www/tut/2023%2005%2003%20Tutorial/Slide6.PNG" style ="width:80%">
 </h2>
 
 <h2 align = "center">
@@ -108,7 +108,7 @@ The data filtering mode is used in the following way:
 6. The download is a bit different from previous search modes. Despite still giving you the possibility to save your input conditions, you are presented with a annotated version of your dataset. All analytes, that were evaluated instable based on experimental stability data and your input conditions are flagged as such in this variant of your dataset.
 
 <h2 align = "center">
- <img src="https://raw.githubusercontent.com/Fraunhofer-ITMP/alister/main/www/tut/2023%2005%2003%20Tutorial/Slide8.PNG">
+ <img src="https://raw.githubusercontent.com/Fraunhofer-ITMP/alister/main/www/tut/2023%2005%2003%20Tutorial/Slide8.PNG" style ="width:80%">
 </h2>
 
 <h1>
