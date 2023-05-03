@@ -14,6 +14,10 @@ ALISTER is a web-app containing scientific information on pre-analytical blood s
 The following document gives an overview over the app functionalities.
 
 <h2>
+ Plasma or serum?
+</h2>
+
+<h2>
  Search modes
 </h2>
 
