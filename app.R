@@ -14,7 +14,7 @@ library(dplyr)
 
 #Connect to database
 
-db = readRDS("db/PreanDatab.RDS")
+db = readRDS("https://github.com/Fraunhofer-ITMP/alister_db/blob/main/db/PreanDatab.RDS")
 fc = db$fc
 an = db$an
 con = db$con
