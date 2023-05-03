@@ -85,7 +85,8 @@ Analyte search is used in the following way:
 3. Processing delay before and after centrifugation might affect the analyte in different ways. Put in the processing time of your samples here.
 4. Like previously: If you want to define more or less strict stability thresholds, you can do that here.
 5. Analyte search combines functions previously introduced in 'Sample search' and 'Protocol search'. Here, the protocol recommendation, as well as the visual output introduced in 'Protocol search' are displayed.
-6. Separately, 'Analyte search' assesses your own pre-analytical input conditions. When clicking on 'Details' you can see an abstraction on the literature information ALISTER bases its decision on, indicating a generalized form of your input and whether the set individual threshold of fold changes due to pre-analytical stability was exceeded and in what 
+6. Separately, 'Analyte search' assesses your own pre-analytical input conditions. When clicking on 'Details' you can see an abstraction on the literature based  information ALISTER bases its decision on, indicating a generalized form of your input and whether the set individual threshold of fold changes due to pre-analytical stability was exceeded and in what direction.
+7. All data you put in your query and the respective output can be downloaded. The tab 'Variable explanation' will answer all your questions regarding interpreation of the download.
 
 <h3 align = "center">
  <img src="https://raw.githubusercontent.com/Fraunhofer-ITMP/alister/main/www/tut/2023%2005%2003%20Tutorial/An.PNG">
@@ -97,11 +98,28 @@ Analyte search is used in the following way:
 
 > Research question: "I have a set of measurements of various specific analytes. I do know the conditions the samples were taken under. I want an indiciation of which analytes might be dubious due to pre-analytical conditions. I also want to filter them out of my dataset preemptively."
 
-Sample search is used in the following way:
-1. 
+The data filtering mode is used in the following way:
+1. First up you need to specify a file you load into the app environment. Despite being displayed in a transposed way, the file expects names rows and columns, with analytes in columns. Your data will not be touched. You could even load in an empty table, that just contains all the analyte names relevant to you. In the background your analyte names will be matched with the ones in ALISTER´s underlying database. Lipids are named after the lipid shorthand nomenclature[^2], while polar metabolites are named after their RefMet nomenclature[^3].
+2. As in 'Sample search' you can specify the temperature during processing. Click 'Other temperature after centrifugation' if you want to put in different temperatures for pre- and post-centrifugation processing.
+3. Put in processing delays before and after centrifugation. In most pre-analytic experiments their influence is tested separately, but will both be taken into consideration. Like in all search modes discussed prior to this, you can adjust the thresholds for pre-analytical stability individually.
+4. This is your data. Each analyte is accompanied by a visual indicator giving you a hint on whether the analyte can be expected to be stable under your input conditions based on experimental data. Hover your mouse over each analyte in order to see how your input conditions were approximated by available experimental data. Click 'Citation' if you want to see the sources relevant to assessing the stability of your input.
+5. A pie chart indicates the percentages of each stability category among your analytes under the given conditions.
+6. The download is a bit different from previous search modes. Despite still giving you the possibility to save your input conditions, you are presented with a annotated version of your dataset. All analytes, that were evaluated instable based on experimental stability data and your input conditions are flagged as such in this variant of your dataset.
 
 <h3 align = "center">
  <img src="https://user-images.githubusercontent.com/105213394/235858925-df8a7aef-db77-4779-ad27-9cdf30764b3a.png">
 </h3>
 
+<h2>
+ Call for contribution
+</h2>
+
+
+
+<h2>
+ References
+</h2>
+
 [^1]: Future reference
+[^2]: Lipid shorthand nomenclature
+[^3]: [RefMet Database](https://metabolomicsworkbench.shinyapps.io/refmet_name_search/)
