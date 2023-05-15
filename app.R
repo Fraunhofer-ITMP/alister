@@ -14,7 +14,7 @@ library(dplyr)
 
 #Connect to database
 
-db = readRDS("https://github.com/Fraunhofer-ITMP/alister_db/blob/main/db/PreanDatab.RDS")
+db = readRDS("db/PreanDatab.RDS")
 fc = db$fc
 an = db$an
 con = db$con
@@ -96,14 +96,14 @@ download.guide.cc = c("<ul><li>date = The date of your query</li>
                     <li>query = Substance classes from your query</li>
                     <li>stability thresholds [%] = Chosen (or default) stability thresholds</li>
                     <li>recommendation = Overall sampling protocol recommendation (please also see provided PDFs)</li>
-                    <li>analyte = A list of analtes with their respective protocols</li>
+                    <li>analyte = A list of analytes with their respective protocols</li>
                     <li>ref = References for the shown estimation</li></ul>")
 
 download.guide.samp = c("<ul><li>date = The date of your query</li>
                         <li>query = Substance classes from your query</li>
                         <li>stability thresholds [%] = Chosen (or default) stability thresholds</li>
-                        <li>time to centrifugation [min] = Sample processing delay between collection and centrifugation. Chosen value and analyte individual approximation by experimental data</li>
-                        <li>time to freeze [min] = Sample processing delay between centrifugation and freezing. Chosen value and analyte individual approximation by experimental data</li>
+                        <li>time to centrifugation [min] = Sample processing delay between collection and centrifugation. Chosen value and it's analyte individual approximation by experimental data</li>
+                        <li>time to freeze [min] = Sample processing delay between centrifugation and freezing. Chosen value and it's analyte individual approximation by experimental data</li>
                         <li>temp. (during time to centr.)[°C] = Sample processing temperature during time to centrifugation</li>
                         <li>temp. (during time to freeze)[°C] = Sample processing temperature during time to freeze</li>
                         <li>status = stability estimation corresponding to each analyte depending on the chosen conditions</li>
@@ -112,8 +112,8 @@ download.guide.samp = c("<ul><li>date = The date of your query</li>
 download.guide.samp.serum = c("<ul><li>date = The date of your query</li>
                         <li>query = Substance classes from your query</li>
                         <li>stability thresholds [%] = Chosen (or default) stability thresholds</li>
-                        <li>time to centrifugation [min] = Sample processing delay between collection and centrifugation. Chosen value and analyte individual approximation by experimental data</li>
-                        <li>time to freeze [min] = Sample processing delay between centrifugation and freezing. Chosen value and analyte individual approximation by experimental data</li>
+                        <li>time to centrifugation [min] = Sample processing delay between collection and centrifugation. Chosen value and it's analyte individual approximation by experimental data</li>
+                        <li>time to freeze [min] = Sample processing delay between centrifugation and freezing. Chosen value and it's analyte individual approximation by experimental data</li>
                         <li>temp. (during time to freeze)[°C] = Sample processing temperature during time to freeze</li>
                         <li>status = stability estimation corresponding to each analyte depending on the chosen conditions</li>
                         <li>ref = References for the shown estimation</li></ul>")
@@ -123,10 +123,10 @@ download.guide.an = c("<ul><li>date = The date of your query</li>
                     <li>centr_dur = Duration of centrifugation</li>
                     <li>stability thresholds [%] = Chosen (or default) stability thresholds</li>
                     <li>recommendation = Overall sampling protocol recommendation (please also see provided PDFs)</li>
-                    <li>time to centrifugation [min] = Sample processing delay between collection and centrifugation. Chosen value and analyte individual approximation by experimental data</li>
-                    <li>time to freeze [min] = Sample processing delay between centrifugation and freezing. Chosen value and analyte individual approximation by experimental data</li>
+                    <li>time to centrifugation [min] = Sample processing delay between collection and centrifugation. Chosen value and it's analyte individual approximation by experimental data</li>
+                    <li>time to freeze [min] = Sample processing delay between centrifugation and freezing. Chosen value and it's analyte individual approximation by experimental data</li>
                     <li>temp. (during time to centr.)[°C] = Sample processing temperature during time to centrifugation</li>
-                    <li>temp. (during time to freeze)[°C] = Sample processing temperature during time to freez</li>
+                    <li>temp. (during time to freeze)[°C] = Sample processing temperature during time to freeze</li>
                     <li>status = stability estimation corresponding to each analyte depending on the chosen conditions</li>
                     <li>trend = Indicator of exceedance of stability thresholds under given condition (including direction)</li>
                       <li>ref = References for the shown estimation</li></ul>")
@@ -136,20 +136,28 @@ download.guide.an.serum = c("<ul><li>date = The date of your query</li>
                     <li>centr_dur = Duration of centrifugation</li>
                     <li>stability thresholds [%] = Chosen (or default) stability thresholds</li>
                     <li>recommendation = Overall sampling protocol recommendation (please also see provided PDFs)</li>
-                    <li>time to centrifugation [min] = Sample processing delay between collection and centrifugation. Chosen value and analyte individual approximation by experimental data</li>
-                    <li>time to freeze [min] = Sample processing delay between centrifugation and freezing. Chosen value and analyte individual approximation by experimental data</li>
-                    <li>temp. (during time to freeze)[°C] = Sample processing temperature during time to freez</li>
+                    <li>time to centrifugation [min] = Sample processing delay between collection and centrifugation. Chosen value and it's analyte individual approximation by experimental data</li>
+                    <li>time to freeze [min] = Sample processing delay between centrifugation and freezing. Chosen value and it's analyte individual approximation by experimental data</li>
+                    <li>temp. (during time to freeze)[°C] = Sample processing temperature during time to freeze</li>
                     <li>status = stability estimation corresponding to each analyte depending on the chosen conditions</li>
                     <li>trend = Indicator of exceedance of stability thresholds under given condition (including direction)</li>
                       <li>ref = References for the shown estimation</li></ul>")
 
-impressum = c("<p>Samuel Rischke<br>
-            Institute of Clinical Pharmacology<br>
-            Goethe-University Clinic Frankfurt a.M.<br>
+impressum = c("<p>Fraunhofer-Institut für Translationale Medizin und Pharmakologie ITMP<br>
             Theodor-Stern-Kai 7<br>
-            D60590 Frankfurt am Main<br>
-            Germany<br>
-            E-Mail: rischke@med.uni-frankfurt.de</p>")
+            60596 Frankfurt a. M.<br>
+            Telefon: +49 69 6301-80231<br>
+            Fax: +49 69 6301-7617<br>
+            Email: info@itmp.fraunhofer.de<br>
+            www.itmp.fraunhofer.de<br>
+            ist eine rechtlich nicht selbständige Einrichtung der<br>
+            Fraunhofer-Gesellschaft zur Förderung der angewandten
+Forschung e.V.<br>
+            Hansastraße 27 c<br>
+            80686 München<br>
+            Telefon: +49 89 1205-0<br>
+            Fax: +49 89 1205-7531<br>
+            www.fraunhofer.de</p>")
 
 serum.guide = c("Pre-analytical data on serum stability is pretty sparse within our database right now. This is why we cant offer the 
                 input for pre-analytical variation to be as flexible as in plasma search modes. We hope to include more data on serum
@@ -168,7 +176,7 @@ ui <- fluidPage(
             HTML('<center><img src="alister_akronym.png" height = "320"></center>'),
             pickerInput("mtrx",h4(strong("Biomatrix")), choices = drops$val, choicesOpt = list(content = drops$img)),
             uiOutput("mode"),
-            helpText("You can query the database for individual analytes (more detailed) or whole lipid & metabolite classes (for a more broad overview)."),
+            helpText("You can query the database for individual analytes (more detailed) or whole lipid & metabolite classes (for a broader overview)."),
             tags$head(tags$style("
                        .jhr{
                        display: inline;
@@ -213,7 +221,7 @@ ui <- fluidPage(
             ),
             #Conditional Panel: Sample Search - Plasma====
             conditionalPanel(condition = "input.mode == `Sample search` & input.mtrx == `Plasma`",
-                             helpText("In this mode you can define the preanalytical conditions, that are true for your samples. When selecting a class in addition, you will receive a recommendation based on the present data, on whether compounds from the lipid class should still be considered for measurement."),
+                             helpText("In this mode you can define the pre-analytical conditions, that are true for your samples. In additiona, when selecting a class, you will receive a recommendation based on the present presented data, as to whether compounds from the lipid class should still be considered for measurement."),
                              multiInput("look_samp", 
                                         label = "Search compound classes",
                                         choices = plasma.mtrx,#as.list(sort(unique(an$an_class))),
@@ -258,7 +266,7 @@ ui <- fluidPage(
             #Conditional Panel: Analyte search - Plasma====
             conditionalPanel(condition = "input.mode == `Analyte search` & input.mtrx == `Plasma`",
                              selectInput("look_an",  h4(strong("Analyte")), choices = plasma.an, selected = 1),
-                             helpText("Looking up a specific analytes"),
+                             helpText("Look up a specific analytes"),
                              #radioButtons("an.radio.tube", h5(strong("Blood sampling tube")), choices = list(c("K3EDTA"),c("GlucoExact"))),
                              helpText("Get stability information on your selected analyte by entering your sampling protocol below."),
                              fluidRow(
@@ -302,7 +310,7 @@ ui <- fluidPage(
             #Conditional Panel: Data filtering mode - Plasma====
             conditionalPanel(condition = "input.mode == `Data filtering mode` & input.mtrx == `Plasma`",
                              h4(strong("Data filtering")),
-                             helpText("In data filtering mode you are able to upload your own analysis results, enter your pre-analytical conditions and filter out potentially instable analytes. 
+                             helpText("In data filtering mode you are able to upload your own analysis results, enter your pre-analytical conditions and filter out potentially unstable analytes. 
                                       Your data is expected to have samples in rows and analytes in columns. 
                                       We will not store or analyze your measurements. When in doubt, you can even upload an empty table, 
                                       with just column names."),
@@ -410,7 +418,7 @@ ui <- fluidPage(
             #Conditional Panel: Data filtering mode - Serum====
             conditionalPanel(condition = "input.mode == `Data filtering mode` & input.mtrx == `Serum`",
                              h4(strong("Data filtering")),
-                             helpText("In data filtering mode you are able to upload your own analysis results, enter your pre-analytical conditions and filter out potentially instable analytes. 
+                             helpText("In data filtering mode you are able to upload your own analysis results, enter your pre-analytical conditions and filter out potentially unstable analytes. 
                                       Your data is expected to have samples in rows and analytes in columns. 
                                       We will not store or analyze your measurements. When in doubt, you can even upload an empty table, 
                                       with just column names."),
@@ -450,7 +458,7 @@ ui <- fluidPage(
                       tags$div(#tags$br(),
                           h4("Disclaimer",align = "center"),
                           tags$br(),
-                          "We cannot assume any liability for the content of external pages. Solely the operators of those linked pages are responsible for their content.", 
+                          "We cannot assume any liability for the content of external pages. The operators of those linked pages are solely responsible for their content.", 
                           tags$br(), 
                           tags$br(),
                           "We make every reasonable effort to ensure that the content of this Web site is kept up to date, and that it is accurate and complete. Nevertheless, the possibility of errors cannot be entirely ruled out. We do not give any warranty in respect of the timeliness, 
@@ -494,7 +502,7 @@ ui <- fluidPage(
                       br(),
                       bsCollapse(bsCollapsePanel("Citation",dataTableOutput("samp.ref"))),
                       fluidRow(
-                          column(4,HTML('<center><img src="leg/legsamps.png" height = "220"></center>')),
+                          column(4,HTML('<center><img src="leg/legsamps.PNG" height = "220"></center>')),
                           column(4,plotOutput("samp.pie", height = "300",width = "450"))
                           #column(4,HTML('<center><img src="contact/contact.png" height = "220"></center>'))
                       )
@@ -545,7 +553,7 @@ ui <- fluidPage(
                       br(),
                       bsCollapse(bsCollapsePanel("Citation",dataTableOutput("samp.ref_serum"))),
                       fluidRow(
-                          column(4,img(src='leg/legsamps2.png', height = "200", align = "left")),
+                          column(4,img(src='leg/legsamps2.PNG', height = "200", align = "left")),
                           column(4,plotOutput("samp.pie_serum", height = "300",width = "450")),
                           #column(4,HTML('<center><img src="contact/contact.png" height = "220"></center>'))
                       )
@@ -569,7 +577,7 @@ ui <- fluidPage(
                   conditionalPanel(
                       condition = "input.mode == `Data filtering mode` & input.mtrx == `Serum`",
                       helpText("In this panel your data will be analyzed in real time and metabolite stability will be assessed depending on the pre-analytical conditions you entered. 
-                                A version of your dataset, where instable analytes were filtered out can be accessed by clicking on `Download` to the left. If experimental data from our data base do not exactly match the conditions you entered,\nthe conditions most close to your entry are considered.\nYou can hover your mouse over each row in order to see this approximation."),
+                                A version of your dataset, where unstable analytes were filtered out can be accessed by clicking on `Download` to the left. If experimental data from our data base do not exactly match the conditions you entered,\nthe conditions most close to your entry are considered.\nYou can hover your mouse over each row in order to see this approximation."),
                       strong(textOutput("upload.status_serum")),
                       dataTableOutput("csvfilt_serum"),
                       bsCollapse(bsCollapsePanel("Citation",dataTableOutput("filt.ref_serum"))),
@@ -1553,7 +1561,7 @@ server <- function(input, output, session) {
             any.na = lapply(any.na,function(x){any(!unlist(x))})
             
             if(any(unlist(any.na))){
-                uni.exp = uni.exp[-which(any.na),]
+                uni.exp = uni.exp[-which(unlist(any.na))]
             }
             
             all.na = sapply(uni.exp,function(x){length(x) == 0}) %>% which()
@@ -1635,7 +1643,7 @@ server <- function(input, output, session) {
         p.rec <- tab_an()
         if(!is.na(p.rec[[2]])){
             p.rec <- p.rec[[2]]
-            if(p.rec == "A1"|p.rec == "B2"){
+            if(p.rec == "A1"|p.rec == "A2"){
                 p.rec <- pr.png[1]
             } else if (p.rec == "B1"|p.rec == "B2"){
                 p.rec <- pr.png[2]
@@ -1666,6 +1674,7 @@ server <- function(input, output, session) {
         myan <- input$look_an
         my <- an[myan == an[,2],]
         all_fc_my <- fc[which(!is.na(match(fc$an_id,my$an_id))),]
+        all_fc_my <- distinct(all_fc_my,prean_id,.keep_all = T)
         all_con_my <- con[match(unique(all_fc_my$prean_id),con$prean_id),]
         all_con_my$prean_temp = cut(all_con_my$prean_temp, breaks = c(-Inf,8,Inf), labels = c("cooled","roomtemp"))
         all_con_my = all_con_my[grep("EDTA",all_con_my$blood_tube),]
@@ -1799,7 +1808,7 @@ server <- function(input, output, session) {
         text <- c("Our data does not seem to be able to approximate the protocol you entered.",
                   "The protocol seems to ensure analyte stability.",
                   "Our data comes to different conclusions regarding analyte stability for your protocol.",
-                  "The analyte seems to be instable under the suggested protocol.")
+                  "The analyte seems to be unstable under the suggested protocol.")
         cc <- text[cc[[1]]]
         return(cc)
     })
@@ -2122,7 +2131,7 @@ server <- function(input, output, session) {
                                input$filt.slide.temp,
                                input$filt.slide.time1,
                                input$filt.slide.time2,
-                               input$post.temp.filt.slide,)
+                               input$post.temp.filt.slide)
                 mycond[[2]] <- cut(mycond[[2]], breaks = c(-Inf,8,Inf), labels = c("cooled","roomtemp"))
                 mycond[[5]] <- cut(mycond[[5]], breaks = c(-Inf,8,Inf), labels = c("cooled","roomtemp"))
             }
@@ -2789,7 +2798,7 @@ server <- function(input, output, session) {
         text <- c("Our data does not seem to be able to approximate the protocol you entered.",
                   "The protocol seems to ensure analyte stability.",
                   "Our data comes to different conclusions regarding analyte stability for your protocol.",
-                  "The analyte seems to be instable under the suggested protocol.")
+                  "The analyte seems to be unstable under the suggested protocol.")
         cc <- text[cc]
         return(cc)
     })
