@@ -122,5 +122,5 @@ ALISTER aims to aggregate analyte stability data and facilitate low-threshold ac
 </h1>
 
 [^1]: Future reference
-[^2]: Lipid shorthand nomenclature
+[^2]: [Lipid shorthand nomenclature](https://pubmed.ncbi.nlm.nih.gov/33037133/)
 [^3]: [RefMet Database](https://metabolomicsworkbench.shinyapps.io/refmet_name_search/)
