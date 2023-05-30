@@ -70,7 +70,7 @@ trend = c('<img src="trend/trend_up.png" height="24"></img>',
 co <- c(red = "#cd6960",
         yel = "#f4d13b",
         gre = "#afe68b",
-        tra = "#d2d2d2",
+        tra = "#f0f0f0",
         x = "#4c4c4c",
         gra = "#a0a0a0")
 
@@ -80,14 +80,22 @@ MyPie <- function(x){
     ordered.flags = flags[match(x,flags)]
     piex = c(table(ordered.flags))
     piex = piex[match(flags,names(piex))] %>% na.omit()
-    #Piex in wrong order
-    pie3D(piex,
-          theta = pi/3,
-          col = piecol,
-          border = "white",
-          pty = "m",
-          #explode = .1,
-          mar = c(5,1,1,1))
+    piex = data.frame(value = piex,
+                      group = factor(names(piex),levels = c('<img src="flags/red.png" height="24"></img>',
+                                                            '<img src="flags/yel.png" height="24"></img>',
+                                                            '<img src="flags/gre.png" height="24"></img>',
+                                                            '<img src="flags/tra.png" height="24"></img>',
+                                                            '<img src="flags/x.png" height="24"></img>',
+                                                            '<img src="flags/gra.png" height="24"></img>')),
+                      bar = 1)
+    
+    ggplot(piex,aes(y = value, fill = factor(group), x = bar)) +
+        geom_bar(stat = "identity") +
+        scale_fill_manual(values = as.vector(piecol)) +
+        coord_flip() +
+        theme_void() +
+        theme(legend.position = "none",
+              plot.margin = margin(24,0,0,0))
 }
 
 #Download information
@@ -159,6 +167,9 @@ Forschung e.V.<br>
             Fax: +49 89 1205-7531<br>
             www.fraunhofer.de</p>")
 
+about = c("<p>ALISTER v1.0 was developed on R version 4.1.2 (2021-11-01) and shiny version 1.7.4 <br>
+          The code, including a detailed tutorial for the application are published under MIT license and publicly available under github.com/Fraunhofer-ITMP/alister.</pr>")
+
 serum.guide = c("Pre-analytical data on serum stability is pretty sparse within our database right now. This is why we cant offer the 
                 input for pre-analytical variation to be as flexible as in plasma search modes. We hope to include more data on serum
                 stability in the future.")
@@ -190,7 +201,7 @@ ui <- fluidPage(
                                         choices = cc.class,
                                         selected = "Oxylipins"),
                              actionButton("ab.clear.cc","Clear all"),
-                             helpText("Looking for a whole class of analytes"),
+                             helpText("Select compound classes by clicking on the left and deselect by clicking on the right side."),
                              radioButtons("radio.cc.mode", 
                                           "", 
                                           choices = list("Maximize stable analytes" = 1,
@@ -203,9 +214,12 @@ ui <- fluidPage(
                                                            of the protocols identified for your chosen compound class or choose 
                                                            `Majority Vote` in order to choose the protocol, that is identified 
                                                            most often."))),
-                             checkboxInput("own.thresh.cc", "Define stability thresholds", value = FALSE),
+                             checkboxInput("own.thresh.cc", "Define individual stability thresholds", value = FALSE),
+                             helpText("ALISTER defines stability by setting cut-offs for fold changes specific
+                 to analytes subjected to certain pre-analytical conditions. The lower
+                 threshold poses as the critical cut-off for singular foldchanges (default is 20%). The upper
+                 fold change is the critical cut-off for summed up fold changes (default is 30%)."),
                              uiOutput("own.t.cc"),
-                             uiOutput("own.t.h.cc"),
                              HTML('<center><img src="sym/pdf.png" height = "90" width="90"></center>'),
                              column(12,downloadButton("download_protos_cl","Download"),align = "center"),
                              br(),
@@ -217,7 +231,8 @@ ui <- fluidPage(
                              br(),
                              helpText("All information from your query can be downloaded in as a .csv-Table. Click below for a detailed description of the output variables."),
                              bsCollapse(bsCollapsePanel("Variable explanation",uiOutput("FeatList1", style = "info"))),
-                             bsCollapse(bsCollapsePanel("Publishing Notes",uiOutput("imp.cc", style = "info")))
+                             bsCollapse(bsCollapsePanel("Publishing Notes",uiOutput("imp.cc", style = "info"))),
+                             bsCollapse(bsCollapsePanel("About",uiOutput("about.cc", style = "info")))
             ),
             #Conditional Panel: Sample Search - Plasma====
             conditionalPanel(condition = "input.mode == `Sample search` & input.mtrx == `Plasma`",
@@ -230,6 +245,7 @@ ui <- fluidPage(
                                  column(3,actionButton("ab.all","Select all")),
                                  column(6,actionButton("ab.clear","Clear all"))
                              ),
+                             helpText("Select compound classes by clicking on the left and deselect by clicking on the right side."),
                              fluidRow(
                                  column(9,sliderInput("slide.temp", h5(strong("Temperature [°C]")), min = 0, max = 24, value = 0)),
                                  column(3,numericInput("num.temp", "", min = 0, max = 24, value = 0))
@@ -252,16 +268,20 @@ ui <- fluidPage(
                                  column(3,numericInput("num.time2", "", min = 1, max = 240, value = 60))
                              ),
                              helpText("Average duration in sample processing between centrifugation and transfer to deep freezer."),
-                             checkboxInput("own.thresh.samp", "Define stability thresholds", value = FALSE),
+                             checkboxInput("own.thresh.samp", "Define individual stability thresholds", value = FALSE),
+                             helpText("ALISTER defines stability by setting cut-offs for fold changes specific
+                 to analytes subjected to certain pre-analytical conditions. The lower
+                 threshold poses as the critical cut-off for singular foldchanges (default is 20%). The upper
+                 fold change is the critical cut-off for summed up fold changes (default is 30%)."),
                              uiOutput("own.t.samp"),
-                             uiOutput("own.t.h.samp"),
                              HTML('<center><img src="sym/csv.png" height = "90" width="90"></center>'),
                              column(12,downloadButton("download_s","Download"),align = "center"),
                              br(),
                              br(),
                              helpText("All information from your query can be downloaded in as a .csv-Table. Click below for a detailed description of the output variables."),
                              bsCollapse(bsCollapsePanel("Variable explanation",uiOutput("FeatList2", style = "info"))),
-                             bsCollapse(bsCollapsePanel("Publishing Notes",uiOutput("imp.samp.p", style = "info")))
+                             bsCollapse(bsCollapsePanel("Publishing Notes",uiOutput("imp.samp.p", style = "info"))),
+                             bsCollapse(bsCollapsePanel("About",uiOutput("about.samp", style = "info")))
             ),
             #Conditional Panel: Analyte search - Plasma====
             conditionalPanel(condition = "input.mode == `Analyte search` & input.mtrx == `Plasma`",
@@ -291,9 +311,12 @@ ui <- fluidPage(
                                  column(3,numericInput("an.num.time2", "", min = 1, max = 240, value = 60))
                              ),
                              helpText("Average duration in sample processing between centrifugation and transfer to deep freezer."),
-                             checkboxInput("own.thresh.an", "Define stability thresholds", value = FALSE),
+                             checkboxInput("own.thresh.an", "Define individual stability thresholds", value = FALSE),
+                             helpText("ALISTER defines stability by setting cut-offs for fold changes specific
+                 to analytes subjected to certain pre-analytical conditions. The lower
+                 threshold poses as the critical cut-off for singular foldchanges (default is 20%). The upper
+                 fold change is the critical cut-off for summed up fold changes (default is 30%)."),
                              uiOutput("own.t.an"),
-                             uiOutput("own.t.h.an"),
                              HTML('<center><img src="sym/pdf.png" height = "90" width="90"></center>'),
                              column(12,downloadButton("download_protos_an","Download"),align = "center"),
                              br(),
@@ -305,7 +328,8 @@ ui <- fluidPage(
                              br(),
                              helpText("All information that the results are based on can be downloaded in as a .csv-Table. Click below for a detailed description of the output variables."),
                              bsCollapse(bsCollapsePanel("Variable explanation",uiOutput("FeatList3", style = "info"))),
-                             bsCollapse(bsCollapsePanel("Publishing Notes",uiOutput("imp.an.p", style = "info")))
+                             bsCollapse(bsCollapsePanel("Publishing Notes",uiOutput("imp.an.p", style = "info"))),
+                             bsCollapse(bsCollapsePanel("About",uiOutput("about.an", style = "info")))
             ),
             #Conditional Panel: Data filtering mode - Plasma====
             conditionalPanel(condition = "input.mode == `Data filtering mode` & input.mtrx == `Plasma`",
@@ -345,15 +369,19 @@ ui <- fluidPage(
                                  column(3,numericInput("filt.num.time2", "", min = 1, max = 240, value = 60))
                              ),
                              helpText("Average duration in sample processing between centrifugation and transfer to deep freezer."),
-                             checkboxInput("own.thresh.filt", "Define stability thresholds", value = FALSE),
+                             checkboxInput("own.thresh.filt", "Define individual stability thresholds", value = FALSE),
+                             helpText("ALISTER defines stability by setting cut-offs for fold changes specific
+                 to analytes subjected to certain pre-analytical conditions. The lower
+                 threshold poses as the critical cut-off for singular foldchanges (default is 20%). The upper
+                 fold change is the critical cut-off for summed up fold changes (default is 30%)."),
                              uiOutput("own.t.filt"),
-                             uiOutput("own.t.h.filt"),
-                             helpText("Download your filtered data here"),
                              HTML('<center><img src="sym/csv.png" height = "90" width="90"></center>'),
                              column(12,downloadButton("download_filt","Download"),align = "center"),
+                             helpText("Your input will not be saved after your session has ended. It will also be not encrypted when uploaded on to the servers. Download your filtered data here"),
                              br(),
                              br(),
-                             bsCollapse(bsCollapsePanel("Publishing Notes",uiOutput("imp.filt.p", style = "info")))
+                             bsCollapse(bsCollapsePanel("Publishing Notes",uiOutput("imp.filt.p", style = "info"))),
+                             bsCollapse(bsCollapsePanel("About",uiOutput("about.filt", style = "info")))
             ),
             #Conditional Panel: Sample search - Serum====
             conditionalPanel(condition = "input.mode == `Sample search` & input.mtrx == `Serum`",
@@ -367,6 +395,7 @@ ui <- fluidPage(
                                  column(3,actionButton("ab.all_serum","Select all")),
                                  column(6,actionButton("ab.clear_serum","Clear all"))
                              ),
+                             helpText("Select compound classes by clicking on the left and deselect by clicking on the right side."),
                              fluidRow(
                                  column(9,sliderInput("slide.temp_serum", h5(strong("Temperature [°C]")), min = 0, max = 24, value = 21)),
                                  column(3,numericInput("num.temp_serum", "", min = 0, max = 24, value = 21))
@@ -376,16 +405,20 @@ ui <- fluidPage(
                                  column(9,sliderTextInput("slide.time2_serum", h5(strong("Delay until final storage [min]")), choices = c(180,480,1440), selected = 1440, grid = T))
                              ),
                              helpText("Average duration in sample processing between centrifugation and transfer to deep freezer."),
-                             checkboxInput("own.thresh.samp_serum", "Define stability thresholds", value = FALSE),
+                             checkboxInput("own.thresh.samp_serum", "Define individual stability thresholds", value = FALSE),
+                             helpText("ALISTER defines stability by setting cut-offs for fold changes specific
+                 to analytes subjected to certain pre-analytical conditions. The selected 
+                 threshold is the maximum allowed fold change occuring in serum during post-centrifugation
+                 processing delay (default is 20%)."),
                              uiOutput("own.t.samp_serum"),
-                             uiOutput("own.t.h.samp_serum"),
                              HTML('<center><img src="sym/csv.png" height = "90" width="90"></center>'),
                              column(12,downloadButton("download_s_serum","Download"),align = "center"),
                              br(),
                              br(),
                              helpText("All information from your query can be downloaded in as a .csv-Table. Click below for a detailed description of the output variables."),
                              bsCollapse(bsCollapsePanel("Variable explanation",uiOutput("FeatList2_serum", style = "info"))),
-                             bsCollapse(bsCollapsePanel("Publishing Notes",uiOutput("imp.samp.s", style = "info")))
+                             bsCollapse(bsCollapsePanel("Publishing Notes",uiOutput("imp.samp.s", style = "info"))),
+                             bsCollapse(bsCollapsePanel("About",uiOutput("about.samp.serum", style = "info")))
             ),
             #Conditional Panel: Analyte search - Serum====
             conditionalPanel(condition = "input.mode == `Analyte search` & input.mtrx == `Serum`",
@@ -403,17 +436,20 @@ ui <- fluidPage(
                                  column(9,sliderTextInput("an.slide.time2_serum", h5(strong("Delay until final storage [min]")), choices = list(180,480,1440), selected = 1440, grid = T))
                              ),
                              helpText("Average duration in sample processing between centrifugation and transfer to deep freezer."),
-                             checkboxInput("own.thresh.an_serum", "Define stability thresholds", value = FALSE),
+                             checkboxInput("own.thresh.an_serum", "Define individual stability thresholds", value = FALSE),
+                             helpText("ALISTER defines stability by setting cut-offs for fold changes specific
+                 to analytes subjected to certain pre-analytical conditions. The selected 
+                 threshold is the maximum allowed fold change occuring in serum during post-centrifugation
+                 processing delay (default is 20%)."),
                              uiOutput("own.t.an_serum"),
-                             uiOutput("own.t.h.an_serum"),
-                             helpText("Download our sample handling protocols visualized as flow charts."),
                              HTML('<center><img src="sym/csv.png" height = "90" width="90"></center>'),
                              column(12,downloadButton("download_an_serum","Download"),align = "center"),
                              br(),
                              br(),
                              helpText("All information that the results are based on can be downloaded in as a .csv-Table. Click below for a detailed description of the output variables."),
                              bsCollapse(bsCollapsePanel("Variable explanation",uiOutput("FeatList3_serum", style = "info"))),
-                             bsCollapse(bsCollapsePanel("Publishing Notes",uiOutput("imp.an.s", style = "info")))
+                             bsCollapse(bsCollapsePanel("Publishing Notes",uiOutput("imp.an.s", style = "info"))),
+                             bsCollapse(bsCollapsePanel("About",uiOutput("about.an.serum", style = "info")))
             ),
             #Conditional Panel: Data filtering mode - Serum====
             conditionalPanel(condition = "input.mode == `Data filtering mode` & input.mtrx == `Serum`",
@@ -441,15 +477,19 @@ ui <- fluidPage(
                                  column(9,sliderTextInput("filt.slide.time2_serum", h5(strong("Delay until final storage [min]")), choices = list(180,480,1440), selected = 1440, grid = T))
                              ),
                              helpText("Average duration in sample processing between centrifugation and transfer to deep freezer."),
-                             checkboxInput("own.thresh.filt_serum", "Define stability thresholds", value = FALSE),
+                             checkboxInput("own.thresh.filt_serum", "Define individual stability thresholds", value = FALSE),
+                             helpText("ALISTER defines stability by setting cut-offs for fold changes specific
+                 to analytes subjected to certain pre-analytical conditions. The selected 
+                 threshold is the maximum allowed fold change occuring in serum during post-centrifugation
+                 processing delay (default is 20%)."),
                              uiOutput("own.t.filt_serum"),
-                             uiOutput("own.t.h.filt_serum"),
-                             helpText("Download filtered data here"),
                              HTML('<center><img src="sym/csv.png" height = "90" width="90"></center>'),
                              column(12,downloadButton("download_filt_serum","Download"),align = "center"),
+                             helpText("Your input will not be saved after your session has ended. It will also be not encrypted when uploaded on to the servers. Download your filtered data here"),
                              br(),
                              br(),
-                             bsCollapse(bsCollapsePanel("Publishing Notes",uiOutput("imp.filt.s", style = "info")))
+                             bsCollapse(bsCollapsePanel("Publishing Notes",uiOutput("imp.filt.s", style = "info"))),
+                             bsCollapse(bsCollapsePanel("About",uiOutput("about.filt.serum", style = "info")))
             )
         ),
         mainPanel(h1(strong("Results"), align = "left"),
@@ -485,8 +525,7 @@ ui <- fluidPage(
                       bsCollapse(bsCollapsePanel("Citation",dataTableOutput("cl.ref"))),
                       fluidRow(
                           column(4,img(src='leg/legcc.PNG', height = "200", align = "left")),
-                          column(4,plotOutput("cc.pie", height = "300",width = "450"))
-                          #column(4,HTML('<center><img src="contact/contact.png" height = "220"></center>'))
+                          column(6,plotOutput("cc.pie", height = "150",width = "450"))
                       )
                       
                   ),
@@ -503,8 +542,7 @@ ui <- fluidPage(
                       bsCollapse(bsCollapsePanel("Citation",dataTableOutput("samp.ref"))),
                       fluidRow(
                           column(4,HTML('<center><img src="leg/legsamps.PNG" height = "220"></center>')),
-                          column(4,plotOutput("samp.pie", height = "300",width = "450"))
-                          #column(4,HTML('<center><img src="contact/contact.png" height = "220"></center>'))
+                          column(8,plotOutput("samp.pie", height = "75",width = "450"))
                       )
                   ),
                   #Main Panel: Analyte search - Plasma====
@@ -538,8 +576,7 @@ ui <- fluidPage(
                       bsCollapse(bsCollapsePanel("Citation",dataTableOutput("filt.ref"))),
                       fluidRow(
                           column(4,img(src='leg/legfilt.PNG', height = "200", align = "left")),
-                          column(4,plotOutput("filt.pie", height = "300",width = "450"))
-                          #column(4,HTML('<center><img src="contact/contact.png" height = "220"></center>'))
+                          column(8,plotOutput("filt.pie", height = "75",width = "450"))
                       )
                   ),
                   #Main Panel: Sample search - Serum====
@@ -554,8 +591,7 @@ ui <- fluidPage(
                       bsCollapse(bsCollapsePanel("Citation",dataTableOutput("samp.ref_serum"))),
                       fluidRow(
                           column(4,img(src='leg/legsamps2.PNG', height = "200", align = "left")),
-                          column(4,plotOutput("samp.pie_serum", height = "300",width = "450")),
-                          #column(4,HTML('<center><img src="contact/contact.png" height = "220"></center>'))
+                          column(8,plotOutput("samp.pie_serum", height = "75",width = "450")),
                       )
                   ),
                   #Main Panel: Analyte search - Serum====
@@ -583,8 +619,7 @@ ui <- fluidPage(
                       bsCollapse(bsCollapsePanel("Citation",dataTableOutput("filt.ref_serum"))),
                       fluidRow(
                           column(4,img(src='leg/legfilt2.PNG', height = "200", align = "left")),
-                          column(4,plotOutput("filt.pie_serum", height = "300",width = "450"))
-                          #column(4,HTML('<center><img src="contact/contact.png" height = "220"></center>'))
+                          column(8,plotOutput("filt.pie_serum", height = "75",width = "450"))
                       )
                   ),
         )
@@ -609,6 +644,15 @@ server <- function(input, output, session) {
     output$imp.samp.s <- renderUI(HTML(impressum))
     output$imp.an.s <- renderUI(HTML(impressum))
     output$imp.filt.s <- renderUI(HTML(impressum))
+    
+    output$about.cc <- renderUI(HTML(about))
+    output$about.samp <- renderUI(HTML(about))
+    output$about.an <- renderUI(HTML(about))
+    output$about.filt <- renderUI(HTML(about))
+    
+    output$about.samp.serum <- renderUI(HTML(about))
+    output$about.an.serum <- renderUI(HTML(about))
+    output$about.filt.serum <- renderUI(HTML(about))
     
     output$mode <- renderUI({
         if (input$mtrx == "Plasma"){
@@ -638,14 +682,6 @@ server <- function(input, output, session) {
                     max = 100,
                     step = 5,
                     value = c(20,30))
-    })
-    
-    output$own.t.h.cc <- renderUI({
-        req(input$own.thresh.cc == TRUE)
-        helpText("ALISTER defines stability by setting cut-offs for fold changes specific
-                 to analytes subjected to certain pre-analytical conditions. The lower
-                 threshold poses as the critical cut-off for singular foldchanges (default is 20%). The upper
-                 fold change is the critical cut-off for summed up fold changes (default is 30%).")
     })
     
     mult_names_cc <- reactive({
@@ -1110,14 +1146,6 @@ server <- function(input, output, session) {
                     value = c(20,30))
     })
     
-    output$own.t.h.samp <- renderUI({
-        req(input$own.thresh.samp == TRUE)
-        helpText("ALISTER defines stability by setting cut-offs for fold changes specific
-                 to analytes subjected to certain pre-analytical conditions. The lower
-                 threshold poses as the critical cut-off for singular foldchanges (default is 20%). The upper
-                 fold change is the critical cut-off for summed up fold changes (default is 30%).")
-    })
-    
     # React to action buttons----
     rv.multi <- reactiveValues(data = "Sphingolipids")
     
@@ -1233,10 +1261,10 @@ server <- function(input, output, session) {
                 if(length(cc.con[[i]]) == 0){
                     return(data.frame(analyte = cls$an_name[i],
                                       status = flags[4],
-                                      temp_1 = NA,
-                                      temp_2 = NA,
-                                      ttc = NA,
-                                      ttf = NA))
+                                      temp_1 = "NA",
+                                      temp_2 = "NA",
+                                      ttc = "NA",
+                                      ttf = "NA"))
                 }else{
                     
                     #Match fold changes
@@ -1517,14 +1545,6 @@ server <- function(input, output, session) {
                     max = 100,
                     step = 5,
                     value = c(20,30))
-    })
-    
-    output$own.t.h.an <- renderUI({
-        req(input$own.thresh.an == TRUE)
-        helpText("ALISTER defines stability by setting cut-offs for fold changes specific
-                 to analytes subjected to certain pre-analytical conditions. The lower
-                 threshold poses as the critical cut-off for singular foldchanges (default is 20%). The upper
-                 fold change is the critical cut-off for summed up fold changes (default is 30%).")
     })
     
     ## Protocol recommendation ----
@@ -2004,14 +2024,6 @@ server <- function(input, output, session) {
                     value = c(20,30))
     })
     
-    output$own.t.h.filt <- renderUI({
-        req(input$own.thresh.filt == TRUE)
-        helpText("ALISTER defines stability by setting cut-offs for fold changes specific
-                 to analytes subjected to certain pre-analytical conditions. The lower
-                 threshold poses as the critical cut-off for singular foldchanges (default is 20%). The upper
-                 fold change is the critical cut-off for summed up fold changes (default is 30%).")
-    })
-    
     filt.status <- reactive({
         if(is.null(input$csvtable)){
             text <- c("Please upload a dataset for filtering")
@@ -2184,7 +2196,7 @@ server <- function(input, output, session) {
                 
                 filt.test = lapply(seq_along(filt.con),function(i){
                     if(length(filt.con[[i]]) == 0){
-                        return(c(TRUE,flags[4], temp_1 = NA, temp_2 = NA, ttc = NA, ttf = NA))
+                        return(c(TRUE,flags[4], temp_1 = "NA", temp_2 = "NA", ttc = "NA", ttf = "NA"))
                     }else{
                         
                         #Match fold changes
@@ -2232,7 +2244,7 @@ server <- function(input, output, session) {
                 fls <- do.call(cbind,filt.test)
                 colnames(fls) = names(find.filt)
                 
-                nfls = matrix(rep(c(TRUE,flags[6],temp_1 = NA, temp_2 = NA, ttc = NA, ttf = NA),length(filt.ls[[3]])),nrow = 6, ncol = length(filt.ls[[3]]), byrow = F) %>% as.data.frame()
+                nfls = matrix(rep(c(TRUE,flags[6],temp_1 = "NA", temp_2 = "NA", ttc = "NA", ttf = "NA"),length(filt.ls[[3]])),nrow = 6, ncol = length(filt.ls[[3]]), byrow = F) %>% as.data.frame()
                 colnames(nfls) = filt.ls[[3]]
                 
                 filt <- cbind(nfls,fls)
@@ -2240,7 +2252,7 @@ server <- function(input, output, session) {
                 
             } else {
                 nfls <- filt.ls[[3]]
-                allfls <- matrix(rep(c(TRUE,flags[6],temp_1 = NA, temp_2 = NA, ttc = NA, ttf = NA),length(nfls)),nrow = 6, ncol = length(nfls), byrow = F) %>% as.data.frame()
+                allfls <- matrix(rep(c(TRUE,flags[6],temp_1 = "NA", temp_2 = "NA", ttc = "NA", ttf = "NA"),length(nfls)),nrow = 6, ncol = length(nfls), byrow = F) %>% as.data.frame()
                 names(allfls) <- nfls
                 return(list(allfls,NA))
             }
@@ -2358,14 +2370,6 @@ server <- function(input, output, session) {
                     value = c(20))
     })
     
-    output$own.t.h.samp_serum <- renderUI({
-        req(input$own.thresh.samp_serum == TRUE)
-        helpText("ALISTER defines stability by setting cut-offs for fold changes specific
-                 to analytes subjected to certain pre-analytical conditions. The selected 
-                 threshold is the maximum allowed fold change occuring in serum during post-centrifugation
-                 processing delay (default is 20%).")
-    })
-    
     # React to action buttons----
     rv.multi_serum <- reactiveValues(data = "Sphingolipids")
     
@@ -2466,9 +2470,9 @@ server <- function(input, output, session) {
                 if(length(cc.con.ser[[i]]) == 0){
                     return(data.frame(analyte = cls$an_name[i],
                                       status = flags[4],
-                                      temp_1 = NA,
-                                      ttc = NA,
-                                      ttf = NA))
+                                      temp_1 = "NA",
+                                      ttc = "NA",
+                                      ttf = "NA"))
                 }else{
                     
                     #Match fold changes
@@ -2664,14 +2668,6 @@ server <- function(input, output, session) {
                     max = 100,
                     step = 5,
                     value = c(20))
-    })
-    
-    output$own.t.h.an_serum <- renderUI({
-        req(input$own.thresh.an_serum == TRUE)
-        helpText("ALISTER defines stability by setting cut-offs for fold changes specific
-                 to analytes subjected to certain pre-analytical conditions. The selected 
-                 threshold is the maximum allowed fold change occuring in serum during post-centrifugation
-                 processing delay (default is 20%).")
     })
     
     ## Protocol assessment----
@@ -2912,14 +2908,6 @@ server <- function(input, output, session) {
                     value = c(20))
     })
     
-    output$own.t.h.filt_serum <- renderUI({
-        req(input$own.thresh.filt_serum == TRUE)
-        helpText("ALISTER defines stability by setting cut-offs for fold changes specific
-                 to analytes subjected to certain pre-analytical conditions. The lower
-                 threshold poses as the critical cut-off for singular foldchanges (default is 20%). The upper
-                 fold change is the critical cut-off for summed up fold changes (default is 30%).")
-    })
-    
     filt.status_serum <- reactive({
         if(is.null(input$csvtable_serum)){
             text <- c("Please upload a dataset for filtering")
@@ -3071,7 +3059,7 @@ server <- function(input, output, session) {
                 
                 filt.test.ser = lapply(seq_along(filt.con.ser),function(i){
                     if(length(filt.con.ser[[i]]) == 0){
-                        return(c(TRUE,flags[4], temp_1 = NA, ttc = NA, ttf = NA))
+                        return(c(TRUE,flags[4], temp_1 = "NA", ttc = "NA", ttf = "NA"))
                     }else{
                         
                         #Match fold changes
@@ -3117,7 +3105,7 @@ server <- function(input, output, session) {
                 fls.ser <- do.call(cbind,filt.test.ser)
                 colnames(fls.ser) = names(find.filt.ser)
                 
-                nfls.ser = matrix(rep(c(TRUE, flags[4], temp_1 = NA, ttc = NA, ttf = NA),length(filt.ls.ser[[3]])), nrow = 5, ncol = length(filt.ls.ser[[3]]), byrow = F) %>% as.data.frame()
+                nfls.ser = matrix(rep(c(TRUE, flags[4], temp_1 = "NA", ttc = "NA", ttf = "NA"),length(filt.ls.ser[[3]])), nrow = 5, ncol = length(filt.ls.ser[[3]]), byrow = F) %>% as.data.frame()
                 colnames(nfls.ser) = filt.ls.ser[[3]]
                 
                 filt.ser <- cbind(nfls.ser,fls.ser)
@@ -3125,7 +3113,7 @@ server <- function(input, output, session) {
                 
             } else {
                 nfls.ser <- filt.ls.ser[[3]]
-                allfls.ser <- matrix(rep(c(TRUE, flags[6], temp_1 = NA, ttc = NA, ttf = NA),length(nfls.ser)), nrow = 5, ncol = length(nfls.ser), byrow = F) %>% as.data.frame()
+                allfls.ser <- matrix(rep(c(TRUE, flags[6], temp_1 = "NA", ttc = "NA", ttf = "NA"),length(nfls.ser)), nrow = 5, ncol = length(nfls.ser), byrow = F) %>% as.data.frame()
                 names(allfls.ser) <- nfls.ser
                 return(list(allfls.ser,NA))
             }
