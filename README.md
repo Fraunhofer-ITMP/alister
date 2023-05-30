@@ -52,7 +52,7 @@ Sample search is used in the following way:
 7. You can download a .csv-file containing your query, as well as the output and all relevant references. The tab 'Variable explanation' will answer all your questions regarding interpretation of the download.
 
 <h2 align = "center">
- <img src="https://user-images.githubusercontent.com/105213394/235912659-5e19461e-c64d-488f-a00a-244d0a4e2f21.png" style ="width:90%">
+ <img src="https://raw.githubusercontent.com/Fraunhofer-ITMP/alister/main/www/2023%2005%2003%20Tutorial/Samp.PNG" style ="width:90%">
 </h2>
 
 <h2 align = "center">
