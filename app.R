@@ -8,8 +8,8 @@ library(ggplot2)
 library(png)
 library(grid)
 library(DT)
-library(plotrix)
 library(dplyr)
+library(flexdashboard)
 #library(RODBC)
 
 #Connect to database
@@ -247,24 +247,31 @@ ui <- fluidPage(
                              ),
                              helpText("Select compound classes by clicking on the left and deselect by clicking on the right side."),
                              fluidRow(
-                                 column(9,sliderInput("slide.temp", h5(strong("Temperature [°C]")), min = 0, max = 24, value = 0)),
+                                 #column(9,sliderInput("slide.temp", h5(strong("Temperature [°C]")), min = 0, max = 24, value = 0)),
+                                 h5(strong("Temperature [°C]")),
+                                 column(9,gaugeOutput("gauge.temp")),
                                  column(3,numericInput("num.temp", "", min = 0, max = 24, value = 0))
                              ),
                              uiOutput("help.sec.samp.1"),
                              checkboxInput("sec.temp.samp","Other temperature after centrifugation", value = F),
                              fluidRow(
-                                 column(9,uiOutput("post.temp.samp.slide")),
+                                 #column(9,uiOutput("post.temp.samp.slide")),
+                                 column(9,uiOutput("gauge.post.temp.samp")),
                                  column(3,uiOutput("post.temp.samp.num"))
                              ),
                              uiOutput("help.sec.samp.2"),
                              helpText("Intermediate storing temperature during sample processing."),
                              fluidRow(
-                                 column(9, sliderInput("slide.time1", h5(strong("Delay until centrifugation [min]")), min = 1, max = 1440, value = 60)),
+                                 h5(strong("Delay until centrifugation [min]")),
+                                 #column(9, sliderInput("slide.time1", h5(strong("Delay until centrifugation [min]")), min = 1, max = 1440, value = 60)),
+                                 column(9,gaugeOutput("gauge.time1")),
                                  column(3, numericInput("num.time1", "", min = 1, max = 1440, value = 60))
                              ),
                              helpText("Average duration in sample processing between blood drawing and centrifugation."),
                              fluidRow(
-                                 column(9,sliderInput("slide.time2", h5(strong("Delay until final storage [min]")), min = 1, max = 240, value = 60)),
+                                 h5(strong("Delay until final storage [min]")),
+                                 #column(9,sliderInput("slide.time2", h5(strong("Delay until final storage [min]")), min = 1, max = 240, value = 60)),
+                                 column(9,gaugeOutput("gauge.time2")),
                                  column(3,numericInput("num.time2", "", min = 1, max = 240, value = 60))
                              ),
                              helpText("Average duration in sample processing between centrifugation and transfer to deep freezer."),
@@ -290,24 +297,31 @@ ui <- fluidPage(
                              #radioButtons("an.radio.tube", h5(strong("Blood sampling tube")), choices = list(c("K3EDTA"),c("GlucoExact"))),
                              helpText("Get stability information on your selected analyte by entering your sampling protocol below."),
                              fluidRow(
-                                 column(9,sliderInput("an.slide.temp", h5(strong("Temperature [°C]")), min = 0, max = 24, value = 0)),
+                                 h5(strong("Temperature [°C]")),
+                                 #column(9,sliderInput("an.slide.temp", h5(strong("Temperature [°C]")), min = 0, max = 24, value = 0)),
+                                 column(9,gaugeOutput("an.gauge.temp")),
                                  column(3,numericInput("an.num.temp", "", min = 0, max = 24, value = 0))
                              ),
                              uiOutput("help.sec.an.1"),
                              checkboxInput("sec.temp.an","Other temperature after centrifugation", value = F),
                              fluidRow(
-                                 column(9,uiOutput("post.temp.an.slide")),
+                                 column(9,uiOutput("post.temp.an.gauge")),
+                                 #column(9,uiOutput("post.temp.an.slide")),
                                  column(3,uiOutput("post.temp.an.num"))
                              ),
                              uiOutput("help.sec.an.2"),
                              helpText("Intermediate storing temperature during sample processing."),
                              fluidRow(
-                                 column(9, sliderInput("an.slide.time1", h5(strong("Delay until centrifugation [min]")), min = 1, max = 1440, value = 60)),
+                                 h5(strong("Delay until centrifugation [min]")),
+                                 column(9,gaugeOutput("an.gauge.time1")),
+                                 #column(9, sliderInput("an.slide.time1", h5(strong("Delay until centrifugation [min]")), min = 1, max = 1440, value = 60)),
                                  column(3, numericInput("an.num.time1", "", min = 1, max = 1440, value = 60))
                              ),
                              helpText("Average duration in sample processing between blood drawing and centrifugation."),
                              fluidRow(
-                                 column(9,sliderInput("an.slide.time2", h5(strong("Delay until final storage [min]")), min = 1, max = 240, value = 60)),
+                                 h5(strong("Delay until final storage [min]")),
+                                 column(9,gaugeOutput("an.gauge.time2")),
+                                 #column(9,sliderInput("an.slide.time2", h5(strong("Delay until final storage [min]")), min = 1, max = 240, value = 60)),
                                  column(3,numericInput("an.num.time2", "", min = 1, max = 240, value = 60))
                              ),
                              helpText("Average duration in sample processing between centrifugation and transfer to deep freezer."),
@@ -348,24 +362,30 @@ ui <- fluidPage(
                                                       Tab = "\t"),
                                           selected = ","),
                              fluidRow(
-                                 column(9,sliderInput("filt.slide.temp", h5(strong("Temperature [°C]")), min = 0, max = 24, value = 0)),
+                                 h5(strong("Temperature [°C]")),
+                                 column(9,gaugeOutput("filt.gauge.temp")),
+                                 #column(9,sliderInput("filt.slide.temp", h5(strong("Temperature [°C]")), min = 0, max = 24, value = 0)),
                                  column(3,numericInput("filt.num.temp", "", min = 0, max = 24, value = 0))
                              ),
                              uiOutput("help.sec.filt.1"),
                              checkboxInput("sec.temp.filt","Other temperature after centrifugation", value = F),
                              fluidRow(
-                                 column(9,uiOutput("post.temp.filt.slide")),
+                                 column(9,uiOutput("post.temp.filt.gauge")),
                                  column(3,uiOutput("post.temp.filt.num"))
                              ),
                              uiOutput("help.sec.filt.2"),
                              helpText("Intermediate storing temperature during sample processing."),
                              fluidRow(
-                                 column(9, sliderInput("filt.slide.time1", h5(strong("Delay until centrifugation [min]")), min = 1, max = 1440, value = 60)),
+                                 h5(strong("Delay until centrifugation [min]")),
+                                 column(9,gaugeOutput("filt.gauge.time1")),
+                                 #column(9, sliderInput("filt.slide.time1", h5(strong("Delay until centrifugation [min]")), min = 1, max = 1440, value = 60)),
                                  column(3, numericInput("filt.num.time1", "", min = 1, max = 1440, value = 60))
                              ),
                              helpText("Average duration in sample processing between blood drawing and centrifugation."),
                              fluidRow(
-                                 column(9,sliderInput("filt.slide.time2", h5(strong("Delay until final storage [min]")), min = 1, max = 240, value = 60)),
+                                 h5(strong("Delay until final storage [min]")),
+                                 column(9,gaugeOutput("filt.gauge.time2")),
+                                 #column(9,sliderInput("filt.slide.time2", h5(strong("Delay until final storage [min]")), min = 1, max = 240, value = 60)),
                                  column(3,numericInput("filt.num.time2", "", min = 1, max = 240, value = 60))
                              ),
                              helpText("Average duration in sample processing between centrifugation and transfer to deep freezer."),
@@ -397,7 +417,9 @@ ui <- fluidPage(
                              ),
                              helpText("Select compound classes by clicking on the left and deselect by clicking on the right side."),
                              fluidRow(
-                                 column(9,sliderInput("slide.temp_serum", h5(strong("Temperature [°C]")), min = 0, max = 24, value = 21)),
+                                 h5(strong("Temperature [°C]")),
+                                 column(9,gaugeOutput("gauge.temp_serum")),
+                                 #column(9,sliderInput("slide.temp_serum", h5(strong("Temperature [°C]")), min = 0, max = 24, value = 21)),
                                  column(3,numericInput("num.temp_serum", "", min = 0, max = 24, value = 21))
                              ),
                              helpText("Intermediate storing temperature during clotting."),
@@ -428,7 +450,9 @@ ui <- fluidPage(
                              helpText(serum.guide),
                              helpText("Get stability information on your selected analyte by entering your sampling protocol below."),
                              fluidRow(
-                                 column(9,sliderInput("an.slide.temp_serum", h5(strong("Temperature [°C]")), min = 0, max = 24, value = 21)),
+                                 h5(strong("Temperature [°C]")),
+                                 column(9,gaugeOutput("an.gauge.temp_serum")),
+                                 #column(9,sliderInput("an.slide.temp_serum", h5(strong("Temperature [°C]")), min = 0, max = 24, value = 21)),
                                  column(3,numericInput("an.num.temp_serum", "", min = 0, max = 24, value = 21))
                              ),
                              helpText("Intermediate storing temperature during clotting."),
@@ -469,7 +493,9 @@ ui <- fluidPage(
                                                       Tab = "\t"),
                                           selected = ","),
                              fluidRow(
-                                 column(9,sliderInput("filt.slide.temp_serum", h5(strong("Temperature [°C]")), min = 0, max = 24, value = 21)),
+                                 h5(strong("Temperature [°C]")),
+                                 column(9,gaugeOutput("filt.gauge.temp_serum")),
+                                 #column(9,sliderInput("filt.slide.temp_serum", h5(strong("Temperature [°C]")), min = 0, max = 24, value = 21)),
                                  column(3,numericInput("filt.num.temp_serum","",min = 0, max = 24, value = 21))
                              ),
                              helpText("Intermediate storing temperature during clotting."),
@@ -1052,19 +1078,55 @@ server <- function(input, output, session) {
     )
     
     #Sample search - Plasma####
-    observe({
-        updateSliderInput(
-            session = session,
-            inputId = "slide.temp",
-            value = input$num.temp
+    # observe({
+    #     updateSliderInput(
+    #         session = session,
+    #         inputId = "slide.temp",
+    #         value = input$num.temp
+    #     )
+    # })
+    
+    # observe({
+    #     updateNumericInput(
+    #         session = session,
+    #         inputId = "num.temp",
+    #         value = input$slide.temp
+    #     )
+    # })
+    
+    output$gauge.temp = renderGauge({
+        gauge(input$num.temp,
+              min = 0,
+              max = 24,
+              symbol = "°C",
+              sectors = gaugeSectors(success = c(0,24),
+                                     warning = c(24,25),
+                                     danger = c(25,26),
+                                     colors = c("#3f82ff","#ffffff","#ffffff"))
         )
     })
     
-    observe({
-        updateNumericInput(
-            session = session,
-            inputId = "num.temp",
-            value = input$slide.temp
+    output$gauge.time1 = renderGauge({
+        gauge(input$num.time1,
+              min = 1,
+              max = 1440,
+              symbol = "min",
+              sectors = gaugeSectors(success = c(0,1440),
+                                     warning = c(1440,1441),
+                                     danger = c(1441,1442),
+                                     colors = c("#3f82ff","#ffffff","#ffffff"))
+        )
+    })
+    
+    output$gauge.time2 = renderGauge({
+        gauge(input$num.time2,
+              min = 1,
+              max = 1440,
+              symbol = "min",
+              sectors = gaugeSectors(success = c(0,1440),
+                                     warning = c(1440,1441),
+                                     danger = c(1441,1442),
+                                     colors = c("#3f82ff","#ffffff","#ffffff"))
         )
     })
     
@@ -1073,10 +1135,23 @@ server <- function(input, output, session) {
         helpText("Temperature before centrifugation")
     })
     
-    output$post.temp.samp.slide <- renderUI({
+    output$gauge.post.temp.samp <- renderUI({
         req(input$sec.temp.samp == TRUE)
-        sliderInput("post.temp.samp.slide","", min = 0, max = 24, value = 0)
+        renderGauge(gauge(input$post.temp.samp.num,
+                          min = 0,
+                          max = 24,
+                          symbol = "°C",
+                          sectors = gaugeSectors(success = c(0,24),
+                                                 warning = c(24,25),
+                                                 danger = c(25,26),
+                                                 colors = c("#3f82ff","#ffffff","#ffffff"))
+        ))
     })
+    
+    # output$post.temp.samp.slide <- renderUI({
+    #     req(input$sec.temp.samp == TRUE)
+    #     sliderInput("post.temp.samp.slide","", min = 0, max = 24, value = 0)
+    # })
     
     output$post.temp.samp.num <- renderUI({
         req(input$sec.temp.samp == TRUE)
@@ -1088,53 +1163,53 @@ server <- function(input, output, session) {
         helpText("Temperature after centrifugation")
     })
     
-    observe({
-        updateSliderInput(
-            session = session,
-            inputId = "post.temp.samp.slide",
-            value = input$post.temp.samp.num
-        )
-    })
+    # observe({
+    #      updateSliderInput(
+    #        session = session,
+    #         inputId = "post.temp.samp.slide",
+    #         value = input$post.temp.samp.num
+    #     )
+    #  })
+    # 
+    # observe({
+    #      updateNumericInput(
+    #         session = session,
+    #         inputId = "post.temp.samp.num",
+    #         value = input$post.temp.samp.slide
+    #     )
+    # })
     
-    observe({
-        updateNumericInput(
-            session = session,
-            inputId = "post.temp.samp.num",
-            value = input$post.temp.samp.slide
-        )
-    })
+    # observe({
+    #     updateSliderInput(
+    #         session = session,
+    #         inputId = "slide.time1",
+    #         value = input$num.time1
+    #     )
+    # })
+    # 
+    # observe({
+    #     updateNumericInput(
+    #         session = session,
+    #         inputId = "num.time1",
+    #         value = input$slide.time1
+    #     )
+    # })
     
-    observe({
-        updateSliderInput(
-            session = session,
-            inputId = "slide.time1",
-            value = input$num.time1
-        )
-    })
-    
-    observe({
-        updateNumericInput(
-            session = session,
-            inputId = "num.time1",
-            value = input$slide.time1
-        )
-    })
-    
-    observe({
-        updateSliderInput(
-            session = session,
-            inputId = "slide.time2",
-            value = input$num.time2
-        )
-    })
-    
-    observe({
-        updateNumericInput(
-            session = session,
-            inputId = "num.time2",
-            value = input$slide.time2
-        )
-    })
+    # observe({
+    #     updateSliderInput(
+    #         session = session,
+    #         inputId = "slide.time2",
+    #         value = input$num.time2
+    #     )
+    # })
+    # 
+    # observe({
+    #     updateNumericInput(
+    #         session = session,
+    #         inputId = "num.time2",
+    #         value = input$slide.time2
+    #     )
+    # })
     
     output$own.t.samp <- renderUI({
         req(input$own.thresh.samp == TRUE)
@@ -1204,19 +1279,19 @@ server <- function(input, output, session) {
             
             if(!is.null(input$look_samp) & input$sec.temp.samp == FALSE){
                 mycond <- list(c("K3EDTA"),
-                               input$slide.temp,
-                               input$slide.time1,
-                               input$slide.time2,
-                               input$slide.temp)
+                               input$num.temp,
+                               input$num.time1,
+                               input$num.time2,
+                               input$num.temp)
                 mycond[[2]] <- cut(mycond[[2]], breaks = c(-Inf,8,Inf), labels = c("cooled","roomtemp"))
                 mycond[[5]] <- cut(mycond[[5]], breaks = c(-Inf,8,Inf), labels = c("cooled","roomtemp"))
                 
             } else if(!is.null(input$look_samp) & input$sec.temp.samp == TRUE){
                 mycond <- list(c("K3EDTA"),
-                               input$slide.temp,
-                               input$slide.time1,
-                               input$slide.time2,
-                               input$post.temp.samp.slide)
+                               input$num.temp,
+                               input$num.time1,
+                               input$num.time2,
+                               input$post.temp.samp.num)
                 mycond[[2]] <- cut(mycond[[2]], breaks = c(-Inf,8,Inf), labels = c("cooled","roomtemp"))
                 mycond[[5]] <- cut(mycond[[5]], breaks = c(-Inf,8,Inf), labels = c("cooled","roomtemp"))
                 
@@ -1453,19 +1528,31 @@ server <- function(input, output, session) {
     
     output$text.an <- renderText({input$look_an})
     
-    observe({
-        updateSliderInput(
-            session = session,
-            inputId = "an.slide.temp",
-            value = input$an.num.temp
-        )
-    })
+    # observe({
+    #     updateSliderInput(
+    #         session = session,
+    #         inputId = "an.slide.temp",
+    #         value = input$an.num.temp
+    #     )
+    # })
+    # 
+    # observe({
+    #     updateNumericInput(
+    #         session = session,
+    #         inputId = "an.num.temp",
+    #         value = input$an.slide.temp
+    #     )
+    # })
     
-    observe({
-        updateNumericInput(
-            session = session,
-            inputId = "an.num.temp",
-            value = input$an.slide.temp
+    output$an.gauge.temp = renderGauge({
+        gauge(input$an.num.temp,
+              min = 0,
+              max = 24,
+              symbol = "°C",
+              sectors = gaugeSectors(success = c(0,24),
+                                     warning = c(24,25),
+                                     danger = c(25,26),
+                                     colors = c("#3f82ff","#ffffff","#ffffff"))
         )
     })
     
@@ -1474,9 +1561,19 @@ server <- function(input, output, session) {
         helpText("Temperature before centrifugation")
     })
     
-    output$post.temp.an.slide <- renderUI({
+    output$post.temp.an.gauge <- renderUI({
         req(input$sec.temp.an == TRUE)
-        sliderInput("post.temp.an.slide","", min = 0, max = 24, value = 0)
+        renderGauge({
+            gauge(input$post.temp.an.num,
+                  min = 0,
+                  max = 24,
+                  symbol = "°C",
+                  sectors = gaugeSectors(success = c(0,24),
+                                         warning = c(24,25),
+                                         danger = c(25,26),
+                                         colors = c("#3f82ff","#ffffff","#ffffff"))
+            )
+        })
     })
     
     output$post.temp.an.num <- renderUI({
@@ -1489,51 +1586,75 @@ server <- function(input, output, session) {
         helpText("Temperature after centrifugation")
     })
     
-    observe({
-        updateSliderInput(
-            session = session,
-            inputId = "post.temp.an.slide",
-            value = input$post.temp.an.num
+    # observe({
+    #     updateSliderInput(
+    #         session = session,
+    #         inputId = "post.temp.an.slide",
+    #         value = input$post.temp.an.num
+    #     )
+    # })
+    # 
+    # observe({
+    #     updateNumericInput(
+    #         session = session,
+    #         inputId = "post.temp.an.num",
+    #         value = input$post.temp.an.slide
+    #     )
+    # })
+    
+    # observe({
+    #     updateSliderInput(
+    #         session = session,
+    #         inputId = "an.slide.time1",
+    #         value = input$an.num.time1
+    #     )
+    # })
+    # 
+    # observe({
+    #     updateNumericInput(
+    #         session = session,
+    #         inputId = "an.num.time1",
+    #         value = input$an.slide.time1
+    #     )
+    # })
+    
+    # observe({
+    #     updateSliderInput(
+    #         session = session,
+    #         inputId = "an.slide.time2",
+    #         value = input$an.num.time2
+    #     )
+    # })
+    # 
+    # observe({
+    #     updateNumericInput(
+    #         session = session,
+    #         inputId = "an.num.time2",
+    #         value = input$an.slide.time2
+    #     )
+    # })
+    
+    output$an.gauge.time1 = renderGauge({
+        gauge(input$an.num.time1,
+              min = 1,
+              max = 1440,
+              symbol = "min",
+              sectors = gaugeSectors(success = c(1,1440),
+                                     warning = c(1440,1441),
+                                     danger = c(1441,1442),
+                                     colors = c("#3f82ff","#ffffff","#ffffff"))
         )
     })
     
-    observe({
-        updateNumericInput(
-            session = session,
-            inputId = "post.temp.an.num",
-            value = input$post.temp.an.slide
-        )
-    })
-    
-    observe({
-        updateSliderInput(
-            session = session,
-            inputId = "an.slide.time1",
-            value = input$an.num.time1
-        )
-    })
-    
-    observe({
-        updateNumericInput(
-            session = session,
-            inputId = "an.num.time1",
-            value = input$an.slide.time1
-        )
-    })
-    
-    observe({
-        updateSliderInput(
-            session = session,
-            inputId = "an.slide.time2",
-            value = input$an.num.time2
-        )
-    })
-    
-    observe({
-        updateNumericInput(
-            session = session,
-            inputId = "an.num.time2",
-            value = input$an.slide.time2
+    output$an.gauge.time2 = renderGauge({
+        gauge(input$an.num.time2,
+              min = 1,
+              max = 1440,
+              symbol = "min",
+              sectors = gaugeSectors(success = c(1,1440),
+                                     warning = c(1440,1441),
+                                     danger = c(1441,1442),
+                                     colors = c("#3f82ff","#ffffff","#ffffff"))
         )
     })
     
@@ -1701,19 +1822,19 @@ server <- function(input, output, session) {
         
         if(!is.null(input$look_an) & input$sec.temp.an == FALSE){
             mycond <- list(c("K3EDTA"),
-                           input$an.slide.temp,
-                           input$an.slide.time1,
-                           input$an.slide.time2,
-                           input$an.slide.temp)
+                           input$an.num.temp,
+                           input$an.num.time1,
+                           input$an.num.time2,
+                           input$an.num.temp)
             mycond[[2]] <- cut(mycond[[2]], breaks = c(-Inf,8,Inf), labels = c("cooled","roomtemp"))
             mycond[[5]] <- cut(mycond[[5]], breaks = c(-Inf,8,Inf), labels = c("cooled","roomtemp"))
             
         } else if(!is.null(input$look_an) & input$sec.temp.an == TRUE){
             mycond <- list(c("K3EDTA"),
-                           input$an.slide.temp,
-                           input$an.slide.time1,
-                           input$an.slide.time2,
-                           input$post.temp.an.slide)
+                           input$an.num.temp,
+                           input$an.num.time1,
+                           input$an.num.time2,
+                           input$post.temp.an.num)
             mycond[[2]] <- cut(mycond[[2]], breaks = c(-Inf,8,Inf), labels = c("cooled","roomtemp"))
             mycond[[5]] <- cut(mycond[[5]], breaks = c(-Inf,8,Inf), labels = c("cooled","roomtemp"))
         } 
@@ -1874,13 +1995,13 @@ server <- function(input, output, session) {
         own.t = if(is.null(input$own.t.an)){c("20, 30")}else{paste(input$own.t.an, collapse = ", ")}
         reco = tab_an()[[2]]
         
-        ttc = input$an.slide.time1
-        ttf = input$an.slide.time2
-        temp = input$an.slide.temp
-        if(!is.null(input$an.slide.temp2)){
-            temp2 = input$an.slide.temp2
+        ttc = input$an.num.time1
+        ttf = input$an.num.time2
+        temp = input$an.num.temp
+        if(!is.null(input$an.num.temp2)){
+            temp2 = input$an.num.temp2
         } else {
-            temp2 = input$an.slide.temp
+            temp2 = input$an.num.temp
         }
         status = recode(own.prot.an()[[1]],
                         "1" = "WARNING",
@@ -1930,19 +2051,31 @@ server <- function(input, output, session) {
     
     # Data filtering mode - Plasma####
     
-    observe({
-        updateSliderInput(
-            session = session,
-            inputId = "filt.slide.temp",
-            value = input$filt.num.temp
-        )
-    })
+    # observe({
+    #     updateSliderInput(
+    #         session = session,
+    #         inputId = "filt.slide.temp",
+    #         value = input$filt.num.temp
+    #     )
+    # })
+    # 
+    # observe({
+    #     updateNumericInput(
+    #         session = session,
+    #         inputId = "filt.num.temp",
+    #         value = input$filt.slide.temp
+    #     )
+    # })
     
-    observe({
-        updateNumericInput(
-            session = session,
-            inputId = "filt.num.temp",
-            value = input$filt.slide.temp
+    output$filt.gauge.temp = renderGauge({
+        gauge(input$filt.num.temp,
+              min = 0,
+              max = 24,
+              symbol = "°C",
+              sectors = gaugeSectors(success = c(0,24),
+                                     warning = c(24,25),
+                                     danger = c(25,26),
+                                     colors = c("#3f82ff","#ffffff","#ffffff"))
         )
     })
     
@@ -1951,9 +2084,24 @@ server <- function(input, output, session) {
         helpText("Temperature before centrifugation [°C]")
     })
     
-    output$post.temp.filt.slide <- renderUI({
+    
+    # output$post.temp.filt.slide <- renderUI({
+    #     req(input$sec.temp.filt == TRUE)
+    #     sliderInput("post.temp.filt.slide","", min = 0, max = 24, value = 0)
+    # })
+    
+    output$post.temp.filt.gauge <- renderUI({
         req(input$sec.temp.filt == TRUE)
-        sliderInput("post.temp.filt.slide","", min = 0, max = 24, value = 0)
+        renderGauge(gauge(input$post.temp.filt.num,
+                          min = 0,
+                          max = 24,
+                          symbol = "°C",
+                          sectors = gaugeSectors(success = c(0,24),
+                                                 warning = c(24,25),
+                                                 danger = c(25,26),
+                                                 colors = c("#3f82ff","#ffffff","#ffffff"))
+        )
+        )
     })
     
     output$post.temp.filt.num <- renderUI({
@@ -1966,53 +2114,77 @@ server <- function(input, output, session) {
         helpText("Temperature after centrifugation")
     })
     
-    observe({
-        updateSliderInput(
-            session = session,
-            inputId = "post.temp.filt.slide",
-            value = input$post.temp.filt.num
+    output$filt.gauge.time1 = renderGauge({
+        gauge(input$filt.num.time1,
+              min = 1,
+              max = 1440,
+              symbol = "min",
+              sectors = gaugeSectors(success = c(1,1440),
+                                     warning = c(1440,1441),
+                                     danger = c(1441,1442),
+                                     colors = c("#3f82ff","#ffffff","#ffffff"))
         )
     })
     
-    observe({
-        updateNumericInput(
-            session = session,
-            inputId = "post.temp.filt.num",
-            value = input$post.temp.filt.slide
+    output$filt.gauge.time2 = renderGauge({
+        gauge(input$filt.num.time2,
+              min = 1,
+              max = 1440,
+              symbol = "min",
+              sectors = gaugeSectors(success = c(1,1440),
+                                     warning = c(1440,1441),
+                                     danger = c(1441,1442),
+                                     colors = c("#3f82ff","#ffffff","#ffffff"))
         )
     })
     
-    observe({
-        updateSliderInput(
-            session = session,
-            inputId = "filt.slide.time1",
-            value = input$filt.num.time1
-        )
-    })
-    
-    observe({
-        updateNumericInput(
-            session = session,
-            inputId = "filt.num.time1",
-            value = input$filt.slide.time1
-        )
-    })
-    
-    observe({
-        updateSliderInput(
-            session = session,
-            inputId = "filt.slide.time2",
-            value = input$filt.num.time2
-        )
-    })
-    
-    observe({
-        updateNumericInput(
-            session = session,
-            inputId = "filt.num.time2",
-            value = input$filt.slide.time2
-        )
-    })
+    # observe({
+    #     updateSliderInput(
+    #         session = session,
+    #         inputId = "post.temp.filt.slide",
+    #         value = input$post.temp.filt.num
+    #     )
+    # })
+    # 
+    # observe({
+    #     updateNumericInput(
+    #         session = session,
+    #         inputId = "post.temp.filt.num",
+    #         value = input$post.temp.filt.slide
+    #     )
+    # })
+    # 
+    # observe({
+    #     updateSliderInput(
+    #         session = session,
+    #         inputId = "filt.slide.time1",
+    #         value = input$filt.num.time1
+    #     )
+    # })
+    # 
+    # observe({
+    #     updateNumericInput(
+    #         session = session,
+    #         inputId = "filt.num.time1",
+    #         value = input$filt.slide.time1
+    #     )
+    # })
+    # 
+    # observe({
+    #     updateSliderInput(
+    #         session = session,
+    #         inputId = "filt.slide.time2",
+    #         value = input$filt.num.time2
+    #     )
+    # })
+    # 
+    # observe({
+    #     updateNumericInput(
+    #         session = session,
+    #         inputId = "filt.num.time2",
+    #         value = input$filt.slide.time2
+    #     )
+    # })
     
     output$own.t.filt <- renderUI({
         req(input$own.thresh.filt == TRUE)
@@ -2132,18 +2304,18 @@ server <- function(input, output, session) {
             
             if(input$sec.temp.filt == FALSE){
                 mycond <- list(c("K3EDTA"),#input$radio.tube,
-                               input$filt.slide.temp,
-                               input$filt.slide.time1,
-                               input$filt.slide.time2,
-                               input$filt.slide.temp)
+                               input$filt.num.temp,
+                               input$filt.num.time1,
+                               input$filt.num.time2,
+                               input$filt.num.temp)
                 mycond[[2]] <- cut(mycond[[2]], breaks = c(-Inf,8,Inf), labels = c("cooled","roomtemp"))
                 mycond[[5]] <- cut(mycond[[5]], breaks = c(-Inf,8,Inf), labels = c("cooled","roomtemp"))
             } else {
                 mycond <- list(c("K3EDTA"),#input$radio.tube,
-                               input$filt.slide.temp,
-                               input$filt.slide.time1,
-                               input$filt.slide.time2,
-                               input$post.temp.filt.slide)
+                               input$filt.num.temp,
+                               input$filt.num.time1,
+                               input$filt.num.time2,
+                               input$post.temp.filt.num)
                 mycond[[2]] <- cut(mycond[[2]], breaks = c(-Inf,8,Inf), labels = c("cooled","roomtemp"))
                 mycond[[5]] <- cut(mycond[[5]], breaks = c(-Inf,8,Inf), labels = c("cooled","roomtemp"))
             }
@@ -2159,7 +2331,7 @@ server <- function(input, output, session) {
                 all_con_filt$prean_temp = cut(all_con_filt$prean_temp, breaks = c(-Inf,8,Inf), labels = c("cooled","roomtemp"))
                 all_con_filt = all_con_filt[grep("EDTA",all_con_filt$blood_tube),]
                 
-                filt.ind = as.list(unique(fc.filt$an_id))
+                filt.ind = as.list(anid.filt)
                 
                 filt.fc.samp = lapply(filt.ind,function(x){return(fc.filt[which(fc.filt$an_id %in% x),])})
                 
@@ -2344,19 +2516,31 @@ server <- function(input, output, session) {
     
     # Sample search - Serum####
     
-    observe({
-        updateSliderInput(
-            session = session,
-            inputId = "slide.temp_serum",
-            value = input$num.temp_serum
-        )
-    })
+    # observe({
+    #     updateSliderInput(
+    #         session = session,
+    #         inputId = "slide.temp_serum",
+    #         value = input$num.temp_serum
+    #     )
+    # })
+    # 
+    # observe({
+    #     updateNumericInput(
+    #         session = session,
+    #         inputId = "num.temp_serum",
+    #         value = input$slide.temp_serum
+    #     )
+    # })
     
-    observe({
-        updateNumericInput(
-            session = session,
-            inputId = "num.temp_serum",
-            value = input$slide.temp_serum
+    output$gauge.temp_serum = renderGauge({
+        gauge(input$num.temp_serum,
+              min = 0,
+              max = 24,
+              symbol = "°C",
+              sectors = gaugeSectors(success = c(0,24),
+                                     warning = c(24,25),
+                                     danger = c(25,26),
+                                     colors = c("#3f82ff","#ffffff","#ffffff"))
         )
     })
     
@@ -2425,7 +2609,7 @@ server <- function(input, output, session) {
             all_con_cls.ser <- all_con_cls.ser[all_con_cls.ser$matrix == "Serum",]
             all_con_cls.ser$prean_temp <- cut(all_con_cls.ser$prean_temp, breaks = c(-Inf,8,Inf), labels = c("cooled","roomtemp"))
             
-            mycond <- list(input$slide.temp_serum,
+            mycond <- list(input$num.temp_serum,
                            input$slide.time2_serum)
             
             mycond[[1]] <- cut(mycond[[1]], breaks = c(-Inf,8,Inf), labels = c("cooled","roomtemp"))
@@ -2644,19 +2828,31 @@ server <- function(input, output, session) {
     
     output$text.an_serum <- renderText({input$look_an_serum})
     
-    observe({
-        updateSliderInput(
-            session = session,
-            inputId = "an.slide.temp_serum",
-            value = input$an.num.temp_serum
-        )
-    })
+    # observe({
+    #     updateSliderInput(
+    #         session = session,
+    #         inputId = "an.slide.temp_serum",
+    #         value = input$an.num.temp_serum
+    #     )
+    # })
+    # 
+    # observe({
+    #     updateNumericInput(
+    #         session = session,
+    #         inputId = "an.num.temp_serum",
+    #         value = input$an.slide.temp_serum
+    #     )
+    # })
     
-    observe({
-        updateNumericInput(
-            session = session,
-            inputId = "an.num.temp_serum",
-            value = input$an.slide.temp_serum
+    output$an.gauge.temp_serum = renderGauge({
+        gauge(input$an.num.temp_serum,
+              min = 0,
+              max = 24,
+              symbol = "°C",
+              sectors = gaugeSectors(success = c(0,24),
+                                     warning = c(24,25),
+                                     danger = c(25,26),
+                                     colors = c("#3f82ff","#ffffff","#ffffff"))
         )
     })
     
@@ -2687,7 +2883,7 @@ server <- function(input, output, session) {
         all_con_my.ser$prean_temp = cut(all_con_my.ser$prean_temp, breaks = c(-Inf,8,Inf), labels = c("cooled","roomtemp"))
         
         if(!is.null(input$look_an_serum)){
-            mycond <- list(input$an.slide.temp_serum,
+            mycond <- list(input$an.num.temp_serum,
                            input$an.slide.time2_serum)
             mycond[[1]] <- cut(mycond[[1]], breaks = c(-Inf,8,Inf), labels = c("cooled","roomtemp"))   
         }
@@ -2882,19 +3078,31 @@ server <- function(input, output, session) {
     
     # Data filtering mode - Serum####
     
-    observe({
-        updateSliderInput(
-            session = session,
-            inputId = "filt.slide.temp_serum",
-            value = input$filt.num.temp_serum
-        )
-    })
+    # observe({
+    #     updateSliderInput(
+    #         session = session,
+    #         inputId = "filt.slide.temp_serum",
+    #         value = input$filt.num.temp_serum
+    #     )
+    # })
+    # 
+    # observe({
+    #     updateNumericInput(
+    #         session = session,
+    #         inputId = "filt.num.temp_serum",
+    #         value = input$filt.slide.temp_serum
+    #     )
+    # })
     
-    observe({
-        updateNumericInput(
-            session = session,
-            inputId = "filt.num.temp_serum",
-            value = input$filt.slide.temp_serum
+    output$filt.gauge.temp_serum = renderGauge({
+        gauge(input$filt.num.temp_serum,
+              min = 0,
+              max = 24,
+              symbol = "°C",
+              sectors = gaugeSectors(success = c(0,24),
+                                     warning = c(24,25),
+                                     danger = c(25,26),
+                                     colors = c("#3f82ff","#ffffff","#ffffff"))
         )
     })
     
@@ -3008,7 +3216,7 @@ server <- function(input, output, session) {
                 thresh1 = 0.2
             }
             
-            mycond <- list(input$filt.slide.temp_serum,
+            mycond <- list(input$filt.num.temp_serum,
                            input$filt.slide.time2_serum)
             
             mycond[[1]] <- cut(mycond[[1]], breaks = c(-Inf,8,Inf), labels = c("cooled","roomtemp"))
@@ -3024,7 +3232,7 @@ server <- function(input, output, session) {
                 all_con_filt.ser <- all_con_filt.ser[all_con_filt.ser$matrix == "Serum",]
                 all_con_filt.ser$prean_temp = cut(all_con_filt.ser$prean_temp, breaks = c(-Inf,8,Inf), labels = c("cooled","roomtemp"))
                 
-                filt.ind.ser = as.list(unique(fc.filt.ser$an_id))
+                filt.ind.ser = as.list(anid.filt.ser)
                 
                 filt.fc.samp.ser = lapply(filt.ind.ser,function(x){return(fc.filt.ser[which(fc.filt.ser$an_id %in% x),])})
                 
@@ -3105,7 +3313,7 @@ server <- function(input, output, session) {
                 fls.ser <- do.call(cbind,filt.test.ser)
                 colnames(fls.ser) = names(find.filt.ser)
                 
-                nfls.ser = matrix(rep(c(TRUE, flags[4], temp_1 = "NA", ttc = "NA", ttf = "NA"),length(filt.ls.ser[[3]])), nrow = 5, ncol = length(filt.ls.ser[[3]]), byrow = F) %>% as.data.frame()
+                nfls.ser = matrix(rep(c(TRUE, flags[6], temp_1 = "NA", ttc = "NA", ttf = "NA"),length(filt.ls.ser[[3]])), nrow = 5, ncol = length(filt.ls.ser[[3]]), byrow = F) %>% as.data.frame()
                 colnames(nfls.ser) = filt.ls.ser[[3]]
                 
                 filt.ser <- cbind(nfls.ser,fls.ser)
