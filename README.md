@@ -90,7 +90,7 @@ Analyte search is used in the following way:
 7. All data you entered in your query together with the respective output can be downloaded as a .csv file. The tab 'Variable explanation' will answer all your questions regarding interpretation of the download.
 
 <h2 align = "center">
- <img src="https://raw.githubusercontent.com/Fraunhofer-ITMP/alister/main/www/tut/2023%2005%2003%20Tutorial/Slide6.PNG" style ="width:90%">
+ <img src="https://raw.githubusercontent.com/Fraunhofer-ITMP/alister/main/www/tut/2023%2009%2009%20Tutorial/2023%2009%2009%20Analyte%20serach%20Screengrab%20Git.png" style ="width:90%">
 </h2>
 
 <h2 align = "center">
@@ -108,7 +108,7 @@ The data filtering mode is used in the following way:
 6. The .csv download is a bit different from previous search modes. Despite still giving you the possibility to save your input conditions, you are presented with an annotated version of your dataset. All analytes, that were evaluated as 'unstable' based on experimental stability data from literature and your input conditions are flagged as such in this variant of your dataset.
 
 <h2 align = "center">
- <img src="https://raw.githubusercontent.com/Fraunhofer-ITMP/alister/main/www/tut/2023%2005%2003%20Tutorial/Slide8.PNG" style ="width:90%">
+ <img src="https://raw.githubusercontent.com/Fraunhofer-ITMP/alister/main/www/tut/2023%2009%2009%20Tutorial/2023%2009%2009%20Data%20Filtering%20Mode%20Screengrab%20Git.png" style ="width:90%">
 </h2>
 
 <h1>
