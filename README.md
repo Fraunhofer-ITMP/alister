@@ -52,7 +52,7 @@ Sample search is used in the following way:
 7. You can download a .csv-file containing your query, as well as the output and all relevant references. The tab 'Variable explanation' will answer all your questions regarding interpretation of the download.
 
 <h2 align = "center">
- <img src="https://raw.githubusercontent.com/Fraunhofer-ITMP/alister/main/www/2023%2005%2003%20Tutorial/Samp.PNG" style ="width:90%">
+ <img src="https://raw.githubusercontent.com/Fraunhofer-ITMP/alister/main/www/tut/2023%2009%2009%20Tutorial/2023%2009%2009%20Sample%20search%20Screengrab%20Git.png" style ="width:90%">
 </h2>
 
 <h2 align = "center">
@@ -71,7 +71,7 @@ Protocol search is currently only available for plasma samples. It is used in th
 7. In addition to downloading a .csv-file containing your query, as well as the output, you are able to download a PDF file, that depicts all possible sampling protocols in straight forward flowcharts. The tab 'Variable explanation' will answer all your questions regarding interpretation of the download.
 
 <h2 align = "center">
- <img src="https://raw.githubusercontent.com/Fraunhofer-ITMP/alister/main/www/tut/2023%2005%2003%20Tutorial/Slide4.PNG" style ="width:90%">
+ <img src="https://raw.githubusercontent.com/Fraunhofer-ITMP/alister/main/www/tut/2023%2009%2009%20Tutorial/2023%2009%2009%20Protocol%20search%20Screengrab%20Git.png" style ="width:90%">
 </h2>
 
 <h2 align = "center">
