@@ -2,7 +2,7 @@ library(shiny)
 library(shinyBS)
 library(shinyWidgets)
 library(shinythemes)
-#library(rgoslin)
+library(rgoslin)
 library(janitor)
 library(ggplot2)
 library(png)
@@ -10,7 +10,6 @@ library(grid)
 library(DT)
 library(dplyr)
 library(flexdashboard)
-#library(RODBC)
 
 #Connect to database
 
@@ -26,6 +25,12 @@ serum.mtrx = an$an_class[an$an_id%in%(fc$an_id[fc$prean_id %in% con$prean_id[con
 
 plasma.an = an$an_name[an$an_id%in%(fc$an_id[fc$prean_id %in% con$prean_id[con$matrix == "Plasma"]])] %>% unique() %>% sort() %>% as.list()
 serum.an = an$an_name[an$an_id%in%(fc$an_id[fc$prean_id %in% con$prean_id[con$matrix == "Serum"]])] %>% unique() %>% sort() %>% as.list()
+
+all.filt.plasm <- unlist(plasma.an)
+all.parse.plasm <- parseLipidNames(all.filt.plasm) %>% suppressMessages() %>% suppressWarnings()
+
+all.filt.serum <- unlist(serum.an)
+all.parse.serum <- parseLipidNames(all.filt.serum) %>% suppressMessages() %>% suppressWarnings()
 
 cc.fc = fc$an_id[which(fc$prean_id %in% con$prean_id[grep("1|2",con$exp_id)])] %>% unique()
 cc.mtrx = an[which(an$an_id %in% cc.fc),]
@@ -282,7 +287,7 @@ ui <- fluidPage(
                  fold change is the critical cut-off for summed up fold changes (default is 30%)."),
                              uiOutput("own.t.samp"),
                              HTML('<center><img src="sym/csv.png" height = "90" width="90"></center>'),
-                             column(12,downloadButton("download_s","Download"),align = "center"),
+                             column(12,downloadButton("download_s", label = "Download"),align = "center"),
                              br(),
                              br(),
                              helpText("All information from your query can be downloaded in as a .csv-Table. Click below for a detailed description of the output variables."),
@@ -846,6 +851,17 @@ server <- function(input, output, session) {
                 })
             })
             
+            #Obtain references
+            
+            fc.prot.ref = lapply(seq_along(fc.prot),function(i){
+                x = lapply(seq_along(fc.prot[[i]]),function(j){
+                    expid = fc.prot[[i]][[j]]$ttc.fc$exp_id %>% na.omit %>% unique
+                    return(expid)
+                })
+                y = paste(x,collapse = ",")
+                return(y)
+            })
+            
             #Construct data.frame with fold changes needed for protocol assessment
             df.prot = lapply(fc.prot,function(x){
                 lapply(x,function(y){
@@ -902,6 +918,7 @@ server <- function(input, output, session) {
             })
             
             p.rec = do.call(rbind,df.test) %>% as.data.frame()
+            p.rec$reference = fc.prot.ref
             p.rec = p.rec[order(p.rec$analyte),]
             
             #Add red flags in case of majority vote
@@ -1023,19 +1040,22 @@ server <- function(input, output, session) {
         all_an_cl <- an[which(!is.na(match(all_fc_cl$an_id,an$an_id))),]
         all_con_cl <- con[match(all_fc_cl$prean_id,con$prean_id),]
         all_ref_cl <- ref[match(all_con_cl$exp_id,ref$exp_id),]
-        ref <- data.frame(Ref = unique(all_ref_cl$ref),
+        ref <- data.frame(Reference = unique(all_ref_cl$exp_id),
+                          Publication = unique(all_ref_cl$ref),
                           Citation = unique(all_ref_cl$ref_long))
         return(ref)
     })
     
     #Rendering Reference
-    output$cl.ref <- renderDataTable(ccref())
+    output$cl.ref <- renderDataTable(ccref(),rownames = F)
     
     detail_cl_download <- reactive({
         p.rec <- tab_class()       
         cl = paste(input$look_cc, collapse = ", ")
         own.t = if(is.null(input$own.t.cc)){c("20, 30")}else{paste(input$own.t.cc, collapse = ", ")}
-        refo = paste(ref$ref[c(1,2)],collapse = "; ")
+        
+        refo = ccref()[,2]
+        refo = paste(refo,collapse = "; ")
         
         mode.cc = if(input$radio.cc.mode == 1){
             c("Maximize stable analytes")
@@ -1266,7 +1286,14 @@ server <- function(input, output, session) {
         
         ######
         if(is.null(input$look_samp)){
-            cc <- data.frame(analyte = NA, status = NA)
+            cc <- data.frame(analyte = NA,
+                             status = NA,
+                             temp_1 = NA,
+                             temp_2 = NA,
+                             ttc = NA,
+                             ttf = NA,
+                             reference = NA)
+            
             exp_id = NULL
         } else {
             
@@ -1328,6 +1355,16 @@ server <- function(input, output, session) {
                     y.ls = y.ls[-which(sapply(y.ls,nrow)!=2)]
                 }
                 return(y.ls)
+            })
+            
+            exp.con = lapply(seq_along(cc.con),function(i){
+                a = lapply(seq_along(cc.con[[i]]),function(j){
+                    expid = cc.con[[i]][[j]]$exp_id %>% unique
+                    return(expid)
+                })
+                b = sort(unlist(a))
+                b = paste(b,collapse = ",")
+                return(b)
             })
             
             exp_id = do.call(rbind,lapply(cc.con,function(x){do.call(rbind,x)}))$exp_id %>% unique()
@@ -1410,6 +1447,7 @@ server <- function(input, output, session) {
             })
             
             cc = do.call(rbind,cc.test)
+            cc$reference = unlist(exp.con)
             cc = cc[order(cc$analyte),]
             rownames(cc) = NULL
             
@@ -1443,18 +1481,21 @@ server <- function(input, output, session) {
     sampref <- reactive({
         cl <- own.prot()[[2]]
         if(length(cl) == 0){
-            s.ref = data.frame(Ref = NA,
+            s.ref = data.frame(Reference = NA,
+                               Publication = NA,
                                Citation = NA)
         } else {
             match.ref = which(ref$exp_id %in% cl)
             s.ref = ref[match.ref,]
-            s.ref = data.frame(Ref = s.ref$ref,
+            s.ref = data.frame(Reference = s.ref$exp_id,
+                               Publication = s.ref$ref,
                                Citation = s.ref$ref_long)
+            s.ref = s.ref[order(s.ref$Reference),]
         }
         return(s.ref)
     })
     
-    output$samp.ref <- renderDataTable(sampref())
+    output$samp.ref <- renderDataTable(sampref(), rownames = F)
     
     samp.plot <- reactive({
         cc <- own.prot()[[1]]
@@ -1470,29 +1511,35 @@ server <- function(input, output, session) {
     
     detail_s_download <- reactive({
         
-        ttc = input$slide.time1
-        ttf = input$slide.time2
-        temp = input$slide.temp
-        if(!is.null(input$slide.temp2)){
-            temp2 = input$slide.temp2
+        ttc = input$num.time1
+        ttf = input$num.time2
+        temp = input$num.temp
+        if(!is.null(input$post.temp.samp.num)){
+            temp2 = input$post.temp.samp.num
         } else {
-            temp2 = input$slide.temp
+            temp2 = input$num.temp
         }
         
-        cl <- paste(input$look_samp,collapse = ",")
+        cl <- paste(input$look_samp,collapse = ", ")
         cc = own.prot()[[1]]
         
         colnames.cc = c("analyte","status","temperature (before centr.)[°C]","temperature (before freezing)[°C]","time to centr. [min]","time to freeze [min]") %>% t() %>% as.data.frame()
         
-        cc$status = recode(cc$status,
-                           "<img src=\"flags/red.png\" height=\"24\"></img>" = "WARNING",
-                           "<img src=\"flags/yel.png\" height=\"24\"></img>" = "INCONCLUSIVE",
-                           "<img src=\"flags/gre.png\" height=\"24\"></img>" = "OK",
-                           "<img src=\"flags/tra.png\" height=\"24\"></img>" = "")
+        if(any(!is.na(cc$status))){
+            cc$status = recode(cc$status,
+                               "<img src=\"flags/red.png\" height=\"24\"></img>" = "WARNING",
+                               "<img src=\"flags/yel.png\" height=\"24\"></img>" = "INCONCLUSIVE",
+                               "<img src=\"flags/gre.png\" height=\"24\"></img>" = "OK",
+                               "<img src=\"flags/tra.png\" height=\"24\"></img>" = "",
+                               "<img src=\"flags/gra.png\" height=\"24\"></img>" = "",
+                               "<img src=\"flags/x.png\" height=\"24\"></img>" = "")
+        }
+        
         
         cc = unname(cc)
+        cc = cc[,-7]
         
-        refo = paste(sampref()[,1], collapse = "; ")
+        refo = paste(sampref()[,2], collapse = ", ")
         refo = c("ref",refo,rep("",4)) %>% t() %>% as.data.frame()
         
         own.t = if(is.null(input$own.t.samp)){c("20, 30")}else{paste(input$own.t.samp, collapse = ", ")}
@@ -1998,16 +2045,16 @@ server <- function(input, output, session) {
         ttc = input$an.num.time1
         ttf = input$an.num.time2
         temp = input$an.num.temp
-        if(!is.null(input$an.num.temp2)){
-            temp2 = input$an.num.temp2
+        if(!is.null(input$post.temp.an.num)){
+            temp2 = input$post.temp.an.num
         } else {
             temp2 = input$an.num.temp
         }
         status = recode(own.prot.an()[[1]],
-                        "1" = "WARNING",
-                        "2" = "INCONCLUSIVE",
-                        "3" = "OK", 
-                        "4" = "NA")
+                        "1" = "NA",
+                        "2" = "OK",
+                        "3" = "INCONCLUSIVE", 
+                        "4" = "WARNING")
         
         empty.row = rep("",5) %>% t() %>% as.data.frame()
         
@@ -2015,10 +2062,12 @@ server <- function(input, output, session) {
         
         det = own.prot.an()[[2]] %>% as.data.frame
         
-        det$trend = recode(det$trend,
-                           "<img src=\"trend/trend_up.PNG\" height=\"24\"></img>" = "UP",
-                           "<img src=\"trend/trend_down.PNG\" height=\"24\"></img>" = "DOWN",
-                           "<img src=\"trend/trend_stable.PNG\" height=\"24\"></img>" = "STABLE")
+        if(any(!is.na(det$trend))){
+            det$trend = recode(det$trend,
+                               "<img src=\"trend/trend_up.PNG\" height=\"24\"></img>" = "UP",
+                               "<img src=\"trend/trend_down.PNG\" height=\"24\"></img>" = "DOWN",
+                               "<img src=\"trend/trend_stable.PNG\" height=\"24\"></img>" = "STABLE")
+        }
         
         query.df = cbind(data.frame(c("date","query","stability thresholds [%]","recommendation","","time to centrifugation [min]","time to freeze [min]","temp. (during time to centr.)[°C]","temp. (during time to centr.)[min]"),
                                     c(date(),query,own.t,reco,"",ttc,ttf,temp,temp2)),
@@ -2231,55 +2280,53 @@ server <- function(input, output, session) {
             df <- uploadcsv()
             
             col.filt <- colnames(df)
-            #col.parse <- parseLipidNames(col.filt)
+            #Parse entered names
+            col.parse <- parseLipidNames(col.filt)
+            
             #col.parse <- col.parse$Normalized.Name[match(col.filt,col.parse$Original.Name)]
-            col.parse = make_clean_names(col.filt)
-            col.filt <- cbind(col.filt,col.parse)
+            col.filt <- cbind(col.filt,col.parse$Normalized.Name)
             
-            all.filt <- unlist(plasma.an)
-            #Reactivate when rgoslin runs without problems again...
-            # all.parse <- parseLipidNames(make_clean_names(all.filt))
-            # all.parse <- all.parse$Normalized.Name[match(all.filt,all.parse$Original.Name)]
-            all.parse = make_clean_names(all.filt)
-            all.filt <- cbind(all.filt,all.parse)
+            #all.parse <- all.parse$Normalized.Name[match(all.filt,all.parse$Original.Name)]
+            #all.parse = make_clean_names(all.filt)
             
-            mn <- match(col.filt[,2],all.filt[,2], incomparables = col.filt[is.na(col.filt[,2]),2])
+            all.filt <- cbind(all.filt.plasm,all.parse.plasm$Normalized.Name) %>% as.data.frame
+            
             mo <- match(col.filt[,1],all.filt[,1], incomparables = col.filt[is.na(col.filt[,1]),1])
+            
+            dup.all.filt = unique(all.filt[,2][which(duplicated(all.filt[,2]))])
+            all.filt[which(all.filt[,2] %in% dup.all.filt),2] = NA
+            mn <- match(col.filt[,2],all.filt[,2], incomparables = col.filt[is.na(col.filt[,2]),2])
             
             all.mat <- mo
             if(any(is.na(all.mat))){
                 all.mat[is.na(all.mat)] <- mn[is.na(all.mat)]
             }
+            
+            parsed = which(!is.na(mn) & is.na(mo))
+            was.translated = rep(F,length(all.mat))
+            was.translated[parsed] = T
+            
+            make.col.names = make_clean_names(col.filt[,1])
+            make.all.names = make_clean_names(all.filt[,1])
+            
+            all.mat2 = match(make.col.names,make.all.names)
+            
+            if(any(is.na(all.mat))){
+                all.mat[which(is.na(all.mat))] = all.mat2[which(is.na(all.mat))]
+            }
+            
             names(all.mat) <- plasma.an[all.mat]
             
-            col.filt <- colnames(df)
-            # col.parse <- parseLipidNames(col.filt)
-            # col.parse <- col.parse$Normalized.Name[match(col.filt,col.parse$Original.Name)]
-            col.parse = make_clean_names(col.filt)
-            col.filt <- cbind(col.filt,col.parse)
-            
-            all.filt <- an$an_name
-            #Reactivate when rgoslin runs without problems again...
-            # all.parse <- parseLipidNames(make_clean_names(all.filt))
-            # all.parse <- all.parse$Normalized.Name[match(all.filt,all.parse$Original.Name)]
-            all.parse = make_clean_names(all.filt)
-            all.filt <- cbind(all.filt,all.parse)
-            
-            mn <- match(col.filt[,2],all.filt[,2], incomparables = col.filt[is.na(col.filt[,2]),2])
-            mo <- match(col.filt[,1],all.filt[,1], incomparables = col.filt[is.na(col.filt[,1]),1])
-            
-            all.mat2 <- mo
-            if(any(is.na(all.mat2))){
-                all.mat2[is.na(all.mat2)] <- mn[is.na(all.mat2)]
-            }
-            names(all.mat2) <- an$an_name[all.mat2]
-            
-            all.mat[which(!is.na(all.mat))] = all.mat2[which(!is.na(all.mat))]
+            df.order = data.frame(col.df = colnames(df),
+                                  trans.df = names(all.mat))
+            df.order[which(names(all.mat) == "NULL"),2] = df.order[which(names(all.mat) == "NULL"),1]
             
             filt.ls <- list(matched = na.omit(all.mat),
                             found = which(!is.na(all.mat)),
                             notfound = colnames(df)[which(is.na(all.mat))],
-                            all.mat) 
+                            all.mat,
+                            was.translated = was.translated,
+                            df.order = df.order) 
             return(filt.ls)
         }
     })
@@ -2324,7 +2371,7 @@ server <- function(input, output, session) {
             
             if(length(find.filt) > 0){
                 
-                anid.filt <- an$an_id[find.filt]
+                anid.filt <- an$an_id[match(names(find.filt),an$an_name)]#an$an_id[find.filt]
                 fc.filt <- fc[which(!is.na(match(fc$an_id,anid.filt))),]
                 all_con_filt <- con[match(unique(fc.filt$prean_id),con$prean_id),]
                 all_con_filt <- all_con_filt[all_con_filt$matrix == "Plasma",]
@@ -2363,6 +2410,16 @@ server <- function(input, output, session) {
                     }
                     return(y.ls)
                 })
+                
+                filt.con.exp = lapply(seq_along(filt.con),function(i){
+                    a = lapply(seq_along(filt.con[[i]]),function(j){
+                        exp = filt.con[[i]][[j]]$exp_id %>% unique()
+                        return(exp)
+                    })
+                    b = unlist(a) %>% sort()
+                    b = paste(b,collapse = ",")
+                    return(b)
+                }) %>% unlist()
                 
                 exp_id = do.call(rbind,lapply(filt.con,function(x){do.call(rbind,x)}))$exp_id %>% unique()
                 
@@ -2414,9 +2471,10 @@ server <- function(input, output, session) {
                 })
                 
                 fls <- do.call(cbind,filt.test)
+                fls <- rbind(fls,reference = filt.con.exp)
                 colnames(fls) = names(find.filt)
                 
-                nfls = matrix(rep(c(TRUE,flags[6],temp_1 = "NA", temp_2 = "NA", ttc = "NA", ttf = "NA"),length(filt.ls[[3]])),nrow = 6, ncol = length(filt.ls[[3]]), byrow = F) %>% as.data.frame()
+                nfls = matrix(rep(c(TRUE,flags[6],temp_1 = "NA", temp_2 = "NA", ttc = "NA", ttf = "NA", reference = "NA"),length(filt.ls[[3]])),nrow = 7, ncol = length(filt.ls[[3]]), byrow = F) %>% as.data.frame()
                 colnames(nfls) = filt.ls[[3]]
                 
                 filt <- cbind(nfls,fls)
@@ -2424,7 +2482,7 @@ server <- function(input, output, session) {
                 
             } else {
                 nfls <- filt.ls[[3]]
-                allfls <- matrix(rep(c(TRUE,flags[6],temp_1 = "NA", temp_2 = "NA", ttc = "NA", ttf = "NA"),length(nfls)),nrow = 6, ncol = length(nfls), byrow = F) %>% as.data.frame()
+                allfls <- matrix(rep(c(TRUE,flags[6],temp_1 = "NA", temp_2 = "NA", ttc = "NA", ttf = "NA", reference = "NA"),length(nfls)),nrow = 7, ncol = length(nfls), byrow = F) %>% as.data.frame()
                 names(allfls) <- nfls
                 return(list(allfls,NA))
             }
@@ -2437,8 +2495,10 @@ server <- function(input, output, session) {
         } else {
             df <- uploadcsv()
             filt <- filt.table()[[1]]
+            df.order = matchfilt()[[6]]
             
-            filt <- filt[2:6,colnames(df)]
+            filt <- filt[2:7,df.order$trans.df]
+            colnames(filt) = df.order$col.df
             if(any(duplicated(colnames(df)))){
                 colnames(filt)[which(duplicated(colnames(df)))] <- colnames(df)[which(duplicated(colnames(df)))]
             }
@@ -2460,18 +2520,21 @@ server <- function(input, output, session) {
     filtref <- reactive({
         cl <- filt.table()[[2]]
         if(length(cl)<1){
-            f.ref = data.frame(Ref = NA,
+            f.ref = data.frame(Reference = NA,
+                               Publication = NA,
                                Citation = NA)
         } else {
             match.ref = which(ref$exp_id %in% cl)
             m.ref = ref[match.ref,]
-            f.ref = data.frame(Ref = m.ref$ref,
+            f.ref = data.frame(Reference = m.ref$exp_id,
+                               Publication = m.ref$ref,
                                Citation = m.ref$ref_long)
+            f.ref = f.ref[order(f.ref$Reference),]
         }
         return(f.ref)
     })
     
-    output$filt.ref <- renderDataTable(filtref())
+    output$filt.ref <- renderDataTable(filtref(),rownames = F)
     
     filt.plot <- reactive({
         if(!is.null(input$csvtable)){
@@ -2494,12 +2557,15 @@ server <- function(input, output, session) {
             df <- uploadcsv()
             filt <- filt.table()[[1]]
             
-            filt <- filt[,colnames(df)]
+            df.order = matchfilt()[[6]]
             
+            filt <- filt[1:6,df.order$trans.df]
+            colnames(filt) = df.order$col.df
             if(any(duplicated(colnames(df)))){
                 colnames(filt)[which(duplicated(colnames(df)))] <- colnames(df)[which(duplicated(colnames(df)))]
             }
-            filt <- which(as.logical(filt))
+            
+            filt <- which(as.logical(filt[1,]))
             df <- df[,filt]
             return(df)
         }
@@ -2599,7 +2665,11 @@ server <- function(input, output, session) {
         }
         
         if(is.null(input$look_samp_serum)){
-            cc <- data.frame(analyte = NA, status = NA)
+            cc <- data.frame(analyte = NA,
+                             status = NA,
+                             temp_1 = NA,
+                             ttc = NA,
+                             ttf = NA) 
             exp_id.ser = NULL
             ### Sample search: One temp input====
         } else if(!is.null(input$look_samp_serum)){
@@ -2646,6 +2716,16 @@ server <- function(input, output, session) {
                 }
                 
                 return(y.ls)
+            })
+            
+            exp.con.ser = lapply(seq_along(cc.con.ser),function(i){
+                a = lapply(seq_along(cc.con.ser[[i]]),function(j){
+                    expid = cc.con.ser[[i]][[j]]$exp_id %>% unique
+                    return(expid)
+                })
+                b = sort(unlist(a))
+                b = paste(b,collapse = ",")
+                return(b)
             })
             
             exp_id.ser = do.call(rbind,lapply(cc.con.ser,function(x){do.call(rbind,x)}))$exp_id %>% unique()
@@ -2720,6 +2800,7 @@ server <- function(input, output, session) {
             })
             
             cc = do.call(rbind,cc.test.ser)
+            cc$reference = exp.con.ser
             cc = cc[order(cc$analyte),]
             rownames(cc) = NULL
         }
@@ -2750,18 +2831,21 @@ server <- function(input, output, session) {
     sampref_serum <- reactive({
         cl <- own.prot_serum()[[2]]
         if(length(cl) == 0){
-            s.s.ref = data.frame(Ref = NA,
+            s.s.ref = data.frame(Reference = NA,
+                                 Publication = NA,
                                  Citation = NA)
         } else {
             match.cl = which(ref$exp_id %in% cl)
             s.s.ref = ref[match.cl,]
-            s.s.ref = data.frame(Ref = s.s.ref$ref,
+            s.s.ref = data.frame(Reference = s.s.ref$exp_id,
+                                 Publication = s.s.ref$ref,
                                  Citation = s.s.ref$ref_long)
+            s.s.ref = s.s.ref[order(s.s.ref$Reference),]
         }
         return(s.s.ref)
     })
     
-    output$samp.ref_serum <- renderDataTable(sampref_serum())
+    output$samp.ref_serum <- renderDataTable(sampref_serum(),rownames = F)
     
     samp.plot_serum <- reactive({
         cc <- own.prot_serum()[[1]]
@@ -2777,22 +2861,24 @@ server <- function(input, output, session) {
     
     detail_s_download_serum <- reactive({
         ttf = input$slide.time2_serum
-        temp = input$slide.temp_serum
+        temp = input$num.temp_serum
         
         cl <- paste(input$look_samp_serum, collapse = ",")
-        cc = own.prot_serum()[[1]][,-4]
+        cc = own.prot_serum()[[1]][,-c(4,6)]
         
         colnames.cc = c("analyte","status","temperature (before freezing)[°C]","time to freeze [min]") %>% t() %>% as.data.frame()
         
-        cc$status = recode(cc$status,
-                           "<img src=\"flags/red.png\" height=\"24\"></img>" = "WARNING",
-                           "<img src=\"flags/yel.png\" height=\"24\"></img>" = "INCONCLUSIVE",
-                           "<img src=\"flags/gre.png\" height=\"24\"></img>" = "OK",
-                           "<img src=\"flags/tra.png\" height=\"24\"></img>" = "")
+        if(any(!is.na(cc$status))){
+            cc$status = recode(cc$status,
+                               "<img src=\"flags/red.png\" height=\"24\"></img>" = "WARNING",
+                               "<img src=\"flags/yel.png\" height=\"24\"></img>" = "INCONCLUSIVE",
+                               "<img src=\"flags/gre.png\" height=\"24\"></img>" = "OK",
+                               "<img src=\"flags/tra.png\" height=\"24\"></img>" = "")
+        }
         
         cc = unname(cc)
         
-        refo = paste(sampref()[,1], collapse = "; ")
+        refo = paste(sampref_serum()[,2], collapse = "; ")
         refo = c("ref",refo,rep("",2)) %>% t() %>% as.data.frame()
         
         own.t = if(is.null(input$own.t.samp_serum)){c("20, 30")}else{paste(input$own.t.samp_serum, collapse = ", ")}
@@ -2912,7 +2998,7 @@ server <- function(input, output, session) {
                             'time_to_freeze' = NA,
                             'temp.' = NA,
                             'trend' = NA,
-                            'ref' = NA)) %>% return()
+                            'ref' = NA)) #%>% return()
         } else {
             #Match fold changes
             exp.test.an.ser = lapply(cc.con.ser,function(x){
@@ -3012,13 +3098,15 @@ server <- function(input, output, session) {
         
         ttc = "< 60"
         ttf = input$an.slide.time2_serum
-        temp = input$an.slide.temp_serum
+        temp = input$an.num.temp_serum
         
-        status = recode(own.prot.an_serum()[[1]],
-                        "1" = "WARNING",
-                        "2" = "INCONCLUSIVE",
-                        "3" = "OK", 
-                        "4" = "NA")
+        if(!is.na(own.prot.an_serum()[[1]])){
+            status = recode(own.prot.an_serum()[[1]],
+                            "1" = "NA",
+                            "2" = "OK",
+                            "3" = "INCONCLUSIVE", 
+                            "4" = "WARNING")
+        }
         
         empty.row = rep("",5) %>% t() %>% as.data.frame()
         
@@ -3026,10 +3114,12 @@ server <- function(input, output, session) {
         
         det = own.prot.an_serum()[[2]] %>% as.data.frame()
         
-        det$trend = recode(det$trend,
-                           "<img src=\"trend/trend_up.PNG\" height=\"24\"></img>" = "UP",
-                           "<img src=\"trend/trend_down.PNG\" height=\"24\"></img>" = "DOWN",
-                           "<img src=\"trend/trend_stable.PNG\" height=\"24\"></img>" = "STABLE")
+        if(any(!is.na(det$trend))){
+            det$trend = recode(det$trend,
+                               "<img src=\"trend/trend_up.PNG\" height=\"24\"></img>" = "UP",
+                               "<img src=\"trend/trend_down.PNG\" height=\"24\"></img>" = "DOWN",
+                               "<img src=\"trend/trend_stable.PNG\" height=\"24\"></img>" = "STABLE")
+        }
         
         query.df = cbind(data.frame(c("date","query","stability thresholds [%]","","time to centrifugation [min]","time to freeze [min]","temp. (during time to centr.)[°C]","temp. (during time to centr.)[min]"),
                                     c(date(),query,own.t,"",ttc,ttf,"room temperature",temp)),
@@ -3151,53 +3241,53 @@ server <- function(input, output, session) {
             df <- uploadcsv_serum()
             
             col.filt <- colnames(df)
-            # col.parse <- parseLipidNames(col.filt)
-            # col.parse <- col.parse$Normalized.Name[match(col.filt,col.parse$Original.Name)]
-            col.parse = make_clean_names(col.filt)
-            col.filt <- cbind(col.filt,col.parse)
             
-            all.filt <- unlist(serum.an)
+            #Parse entered names
+            col.parse <- parseLipidNames(col.filt)
+            
+            col.filt <- cbind(col.filt,col.parse$Normalized.Name)
+            
+            all.filt <- cbind(all.filt.serum,all.parse.serum$Normalized.Name) %>% as.data.frame
             # all.parse <- parseLipidNames(make_clean_names(all.filt))
             # all.parse <- all.parse$Normalized.Name[match(all.filt,all.parse$Original.Name)]
-            all.parse = make_clean_names(all.filt)
-            all.filt <- cbind(all.filt,all.parse)
             
-            mn <- match(col.filt[,2],all.filt[,2], incomparables = col.filt[is.na(col.filt[,2]),2])
             mo <- match(col.filt[,1],all.filt[,1], incomparables = col.filt[is.na(col.filt[,1]),1])
+            
+            dup.all.filt = unique(all.filt[,2][which(duplicated(all.filt[,2]))])
+            all.filt[which(all.filt[,2] %in% dup.all.filt),2] = NA
+            mn <- match(col.filt[,2],all.filt[,2], incomparables = col.filt[is.na(col.filt[,2]),2])
             
             all.mat <- mo
             if(any(is.na(all.mat))){
                 all.mat[is.na(all.mat)] <- mn[is.na(all.mat)]
             }
+            
+            parsed = which(!is.na(mn) & is.na(mo))
+            was.translated = rep(F,length(all.mat))
+            was.translated[parsed] = T
+            
+            make.col.names = make_clean_names(col.filt[,1])
+            make.all.names = make_clean_names(all.filt[,1])
+            
+            all.mat2 = match(make.col.names,make.all.names)
+            
+            if(any(is.na(all.mat))){
+                all.mat[which(is.na(all.mat))] = all.mat2[which(is.na(all.mat))]
+            }
+            
             names(all.mat) <- serum.an[all.mat]
             
-            col.filt <- colnames(df)
-            #col.parse <- parseLipidNames(col.filt)
-            #col.parse <- col.parse$Normalized.Name[match(col.filt,col.parse$Original.Name)]
-            col.parse = make_clean_names(col.filt)
-            col.filt <- cbind(col.filt,col.parse)
-            
-            all.filt <- an$an_name
-            # all.parse <- parseLipidNames(make_clean_names(all.filt))
-            # all.parse <- all.parse$Normalized.Name[match(all.filt,all.parse$Original.Name)]
-            all.parse = make_clean_names(all.filt)
-            all.filt <- cbind(all.filt,all.parse)
-            
-            mn <- match(col.filt[,2],all.filt[,2], incomparables = col.filt[is.na(col.filt[,2]),2])
-            mo <- match(col.filt[,1],all.filt[,1], incomparables = col.filt[is.na(col.filt[,1]),1])
-            
-            all.mat2 <- mo
-            if(any(is.na(all.mat2))){
-                all.mat2[is.na(all.mat2)] <- mn[is.na(all.mat2)]
-            }
-            names(all.mat2) <- an$an_name[all.mat2]
-            
-            all.mat[which(!is.na(all.mat))] = all.mat2[which(!is.na(all.mat))]
+            df.order = data.frame(col.df = colnames(df),
+                                  trans.df = names(all.mat))
+            df.order[which(names(all.mat) == "NULL"),2] = df.order[which(names(all.mat) == "NULL"),1]
             
             filt.ls <- list(matched = na.omit(all.mat),
                             found = which(!is.na(all.mat)),
                             notfound = colnames(df)[which(is.na(all.mat))],
-                            all.mat) 
+                            all.mat,
+                            was.translated = was.translated,
+                            df.order = df.order)
+            
             return(filt.ls)
         }
     })
@@ -3263,6 +3353,16 @@ server <- function(input, output, session) {
                     return(y.ls)
                 })
                 
+                filt.exp.ser = lapply(seq_along(filt.con.ser),function(i){
+                    a = lapply(seq_along(filt.con.ser[[i]]),function(j){
+                        exp = filt.con.ser[[i]][[j]]$exp_id %>% unique()
+                        return(exp)
+                    })
+                    b = unlist(a)
+                    b = paste(b, collapse = ",")
+                    return(b)
+                }) %>% unlist()
+                
                 exp_id.ser = do.call(rbind,lapply(filt.con.ser,function(x){do.call(rbind,x)}))$exp_id %>% unique()
                 
                 filt.test.ser = lapply(seq_along(filt.con.ser),function(i){
@@ -3311,9 +3411,10 @@ server <- function(input, output, session) {
                 })
                 
                 fls.ser <- do.call(cbind,filt.test.ser)
+                fls.ser = rbind(fls.ser, reference = filt.exp.ser)
                 colnames(fls.ser) = names(find.filt.ser)
                 
-                nfls.ser = matrix(rep(c(TRUE, flags[6], temp_1 = "NA", ttc = "NA", ttf = "NA"),length(filt.ls.ser[[3]])), nrow = 5, ncol = length(filt.ls.ser[[3]]), byrow = F) %>% as.data.frame()
+                nfls.ser = matrix(rep(c(TRUE, flags[6], temp_1 = "NA", ttc = "NA", ttf = "NA", reference = "NA"),length(filt.ls.ser[[3]])), nrow = 6, ncol = length(filt.ls.ser[[3]]), byrow = F) %>% as.data.frame()
                 colnames(nfls.ser) = filt.ls.ser[[3]]
                 
                 filt.ser <- cbind(nfls.ser,fls.ser)
@@ -3321,7 +3422,7 @@ server <- function(input, output, session) {
                 
             } else {
                 nfls.ser <- filt.ls.ser[[3]]
-                allfls.ser <- matrix(rep(c(TRUE, flags[6], temp_1 = "NA", ttc = "NA", ttf = "NA"),length(nfls.ser)), nrow = 5, ncol = length(nfls.ser), byrow = F) %>% as.data.frame()
+                allfls.ser <- matrix(rep(c(TRUE, flags[6], temp_1 = "NA", ttc = "NA", ttf = "NA", reference = "NA"),length(nfls.ser)), nrow = 6, ncol = length(nfls.ser), byrow = F) %>% as.data.frame()
                 names(allfls.ser) <- nfls.ser
                 return(list(allfls.ser,NA))
             }
@@ -3334,13 +3435,16 @@ server <- function(input, output, session) {
         } else {
             df <- uploadcsv_serum()
             filt.ser <- filt.table_serum()[[1]]
+            df.order = matchfilt_serum()[[6]]
             
-            filt.ser <- filt.ser[2:5,colnames(df)]
+            filt.ser <- filt.ser[2:6,df.order$trans.df]
+            colnames(filt.ser) = df.order$col.df
             if(any(duplicated(colnames(df)))){
                 colnames(filt.ser)[which(duplicated(colnames(df)))] <- colnames(df)[which(duplicated(colnames(df)))]
             }
             dt <- rbind(filt.ser,df) %>% t()%>% as.data.frame()
-            colnames(dt)[1] = c("status")
+            colnames(dt)[c(1,5)] = c("status","reference")
+            colnames(dt)[6:ncol(dt)] = rownames(df)
             return(dt)
         } 
     })
@@ -3395,18 +3499,21 @@ server <- function(input, output, session) {
     filtref_serum <- reactive({
         cl.ser <- filt.table_serum()[[2]]
         if(length(cl.ser)<1){
-            f.ser.ref = data.frame(Ref = NA,
+            f.ser.ref = data.frame(Reference = NA,
+                                   Publication = NA,
                                    Citation = NA)
         } else {
             match.ref = which(ref$exp_id %in% cl.ser)
             m.ser.ref = ref[match.ref,]
-            f.ser.ref = data.frame(Ref = m.ser.ref$ref,
+            f.ser.ref = data.frame(Reference = m.ser.ref$exp_id,
+                                   Publication = m.ser.ref$ref,
                                    Citation = m.ser.ref$ref_long)
+            f.ser.ref = f.ser.ref[order(f.ser.ref$exp_id),]
         }
         return(f.ser.ref)
     })
     
-    output$filt.ref_serum <- renderDataTable(filtref_serum())
+    output$filt.ref_serum <- renderDataTable(filtref_serum(),rownames = F)
 }
 # Run the application 
 shinyApp(ui = ui, server = server)
