@@ -121,6 +121,6 @@ ALISTER aims to aggregate analyte stability data and facilitate low-threshold ac
  References
 </h1>
 
-[^1]: Future reference
+[^1]: [Publication in CCA](https://pubmed.ncbi.nlm.nih.gov/38492658/)
 [^2]: [Lipid shorthand nomenclature](https://pubmed.ncbi.nlm.nih.gov/33037133/)
 [^3]: [RefMet Database](https://metabolomicsworkbench.shinyapps.io/refmet_name_search/)
