@@ -56,7 +56,7 @@ Sample search is used in the following way:
 7.  You can download a .csv-file containing your query, as well as the output and all relevant references. The tab 'Variable explanation' will answer all your questions regarding interpretation of the download.
 
 <h2 align = "center">
- <img src="https://raw.githubusercontent.com/Fraunhofer-ITMP/alister/main/www/2023%2005%2003%20Tutorial/Samp.PNG" style ="width:90%">
+ <img src="https://raw.githubusercontent.com/Fraunhofer-ITMP/alister/main/www/tut/2023%2009%2009%20Tutorial/2023%2009%2009%20Sample%20search%20Screengrab%20Git.png" style ="width:90%">
 </h2>
 
 <h2 align = "center">
@@ -76,7 +76,7 @@ Protocol search is currently only available for plasma samples. It is used in th
 7.  In addition to downloading a .csv-file containing your query, as well as the output, you are able to download a PDF file, that depicts all possible sampling protocols in straight forward flowcharts. The tab 'Variable explanation' will answer all your questions regarding interpretation of the download.
 
 <h2 align = "center">
- <img src="https://raw.githubusercontent.com/Fraunhofer-ITMP/alister/main/www/tut/2023%2005%2003%20Tutorial/Slide4.PNG" style ="width:90%">
+ <img src="https://raw.githubusercontent.com/Fraunhofer-ITMP/alister/main/www/tut/2023%2009%2009%20Tutorial/2023%2009%2009%20Protocol%20search%20Screengrab%20Git.png" style ="width:90%">
 </h2>
 
 <h2 align = "center">
@@ -96,7 +96,7 @@ Analyte search is used in the following way:
 7.  All data you entered in your query together with the respective output can be downloaded as a .csv file. The tab 'Variable explanation' will answer all your questions regarding interpretation of the download.
 
 <h2 align = "center">
- <img src="https://raw.githubusercontent.com/Fraunhofer-ITMP/alister/main/www/tut/2023%2005%2003%20Tutorial/Slide6.PNG" style ="width:90%">
+ <img src="https://raw.githubusercontent.com/Fraunhofer-ITMP/alister/main/www/tut/2023%2009%2009%20Tutorial/2023%2009%2009%20Analyte%20serach%20Screengrab%20Git.png" style ="width:90%">
 </h2>
 
 <h2 align = "center">
@@ -119,7 +119,7 @@ The data filtering mode is used in the following way:
 [^3]: [RefMet Database](https://metabolomicsworkbench.shinyapps.io/refmet_name_search/)
 
 <h2 align = "center">
- <img src="https://raw.githubusercontent.com/Fraunhofer-ITMP/alister/main/www/tut/2023%2005%2003%20Tutorial/Slide8.PNG" style ="width:90%">
+ <img src="https://raw.githubusercontent.com/Fraunhofer-ITMP/alister/main/www/tut/2023%2009%2009%20Tutorial/2023%2009%2009%20Data%20Filtering%20Mode%20Screengrab%20Git.png" style ="width:90%">
 </h2>
 
 <h1>
@@ -131,3 +131,10 @@ ALISTER aims to aggregate analyte stability data and facilitate low-threshold ac
 <h1>
  References
 </h1>
+<<<<<<< HEAD
+=======
+
+[^1]: [Publication in CCA](https://pubmed.ncbi.nlm.nih.gov/38492658/)
+[^2]: [Lipid shorthand nomenclature](https://pubmed.ncbi.nlm.nih.gov/33037133/)
+[^3]: [RefMet Database](https://metabolomicsworkbench.shinyapps.io/refmet_name_search/)
+>>>>>>> b74e8ce601370cc7f8feb4f3f2028cce5f4d0797
